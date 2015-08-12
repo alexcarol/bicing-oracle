@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"time"
 )
 
 func apiFakeDataProvider() []byte {
@@ -41,22 +42,48 @@ func doCurl() []byte {
 		fmt.Printf("Error with the request %s", err)
 		os.Exit(1)
 	}
-	fmt.Printf("%s\n", string(contents))
 
 	return contents
 }
 
 func main() {
+	ticker := time.NewTicker(60 * time.Second)
+	quit := make(chan struct{})
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				data := obtainApiData()
+				persistData(data)
+			case <-quit:
+				ticker.Stop()
+				return
+			}
+		}
+	}()
+
+	<-quit
+}
+
+func persistData(collection StationStateCollection) {
+	// implement this
+}
+
+func obtainApiData() StationStateCollection {
+	startTime := time.Now()
 	apiData := doCurl()
+	requestEndTime := time.Now()
+
 	var stationCollection StationStateCollection
 
 	err := xml.Unmarshal(apiData, &stationCollection)
 	if err != nil {
-		fmt.Printf("Unmarshal error: %v, structure :%v ", err, apiData)
-		return
+		fmt.Printf("Unmarshal error: %v, structure :%v", err, apiData)
+		return stationCollection
 	}
 
-	stationCollection.Print()
+	fmt.Printf("Data successfully received, request time: %v, unmarshalling time: %v\n", requestEndTime.Sub(startTime), time.Since(requestEndTime))
+	return stationCollection
 }
 
 type StationStateCollection struct {
