@@ -3,8 +3,9 @@ package main
 import (
 	"encoding/xml"
 	"fmt"
-
-	curl "github.com/andelf/go-curl"
+	"io/ioutil"
+	"net/http"
+	"os"
 )
 
 func apiFakeDataProvider() []byte {
@@ -27,35 +28,31 @@ func apiFakeDataProvider() []byte {
                              </bicing_stations>`)
 }
 
-func doCurl() {
-	easy := curl.EasyInit()
-	defer easy.Cleanup()
-
-	easy.Setopt(curl.OPT_URL, "http://wservice.viabicing.cat/v1/getstations.php?v=1")
-
-	// TODO find out how we can connect this to unmarshalling
-	// make a callback function
-	fooTest := func(buf []byte, userdata interface{}) bool {
-		//println("DEBUG: size=>", len(buf))
-		//        print(string(buf))
-		return true
+func doCurl() []byte {
+	response, err := http.Get("http://wservice.viabicing.cat/v1/getstations.php?v=1")
+	if err != nil {
+		fmt.Printf("Error with the request %s", err)
+		os.Exit(1)
 	}
 
-	// this is most likely unnecessary, try to remove
-	easy.Setopt(curl.OPT_WRITEFUNCTION, fooTest)
-
-	if err := easy.Perform(); err != nil {
-		fmt.Printf("ERROR: %v\n", err)
+	defer response.Body.Close()
+	contents, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Printf("Error with the request %s", err)
+		os.Exit(1)
 	}
+	fmt.Printf("%s\n", string(contents))
+
+	return contents
 }
 
 func main() {
-	apiData := apiFakeDataProvider()
+	apiData := doCurl()
 	var stationCollection StationStateCollection
 
 	err := xml.Unmarshal(apiData, &stationCollection)
 	if err != nil {
-		fmt.Printf("error: %v", err)
+		fmt.Printf("Unmarshal error: %v", err)
 		return
 	}
 
@@ -80,7 +77,7 @@ type StationState struct {
 	Longitude         float64 `xml:"long"`
 	Street            string  `xml:"street"`
 	Height            int     `xml:"height"`
-	StreetNumber      int     `xml:"streetNumber"`
+	StreetNumber      string  `xml:"streetNumber"` // Temporary, sometimes it is not set
 	NearbyStationList string  `xml:"nearbyStationList"`
 	Status            string  `xml:"status"`
 	FreeSlots         int     `xml:"slots"`
