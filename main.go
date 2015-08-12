@@ -52,7 +52,7 @@ func main() {
 
 	err := xml.Unmarshal(apiData, &stationCollection)
 	if err != nil {
-		fmt.Printf("Unmarshal error: %v", err)
+		fmt.Printf("Unmarshal error: %v, structure :%v ", err, apiData)
 		return
 	}
 
