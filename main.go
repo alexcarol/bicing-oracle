@@ -49,28 +49,29 @@ func doAPIRequest() []byte {
 func main() {
 	ticker := time.NewTicker(2 * time.Second)
 	quit := make(chan struct{})
-	go func() {
+
+	go func(s *StationStateStorage) {
 		for {
 			select {
 			case <-ticker.C:
 				data := obtainAPIData()
-				persistCollection(data)
+				s.PersistCollection(data)
 			case <-quit:
 				ticker.Stop()
 				return
 			}
 		}
-	}()
+	}(NewStorage())
 
 	<-quit
 }
 
-func obtainAPIData() stationStateCollection {
+func obtainAPIData() StationStateCollection {
 	startTime := time.Now()
 	apiData := doAPIRequest()
 	requestEndTime := time.Now()
 
-	var stationCollection stationStateCollection
+	var stationCollection StationStateCollection
 
 	err := xml.Unmarshal(apiData, &stationCollection)
 	if err != nil {
@@ -82,12 +83,12 @@ func obtainAPIData() stationStateCollection {
 	return stationCollection
 }
 
-type stationStateCollection struct {
+type StationStateCollection struct {
 	StationStates []stationState `xml:"station"`
 	Updatetime    int            `xml:"updatetime"`
 }
 
-func (s stationStateCollection) Print() {
+func (s StationStateCollection) Print() {
 	for i := 0; i < len(s.StationStates); i++ {
 		s.StationStates[i].Print()
 	}
@@ -122,6 +123,16 @@ func (s stationState) Print() {
 	fmt.Printf("Bikes : %v\n", s.Bikes)
 }
 
-func persistCollection(s stationStateCollection) {
+func persistCollection(s StationStateCollection) {
 	fmt.Println("Calling persistCollection", s.Updatetime)
+}
+
+func NewStorage() *StationStateStorage {
+	return &StationStateStorage{}
+}
+
+type StationStateStorage struct{}
+
+func (storage *StationStateStorage) PersistCollection(collection StationStateCollection) {
+
 }
