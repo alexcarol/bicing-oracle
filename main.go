@@ -29,7 +29,7 @@ func apiFakeDataProvider() []byte {
                              </bicing_stations>`)
 }
 
-func doCurl() []byte {
+func doAPIRequest() []byte {
 	response, err := http.Get("http://wservice.viabicing.cat/v1/getstations.php?v=1")
 	if err != nil {
 		fmt.Printf("Error with the request %s", err)
@@ -47,14 +47,14 @@ func doCurl() []byte {
 }
 
 func main() {
-	ticker := time.NewTicker(60 * time.Second)
+	ticker := time.NewTicker(2 * time.Second)
 	quit := make(chan struct{})
 	go func() {
 		for {
 			select {
 			case <-ticker.C:
-				data := obtainApiData()
-				persistData(data)
+				data := obtainAPIData()
+				persistCollection(data)
 			case <-quit:
 				ticker.Stop()
 				return
@@ -65,16 +65,12 @@ func main() {
 	<-quit
 }
 
-func persistData(collection StationStateCollection) {
-	// implement this
-}
-
-func obtainApiData() StationStateCollection {
+func obtainAPIData() stationStateCollection {
 	startTime := time.Now()
-	apiData := doCurl()
+	apiData := doAPIRequest()
 	requestEndTime := time.Now()
 
-	var stationCollection StationStateCollection
+	var stationCollection stationStateCollection
 
 	err := xml.Unmarshal(apiData, &stationCollection)
 	if err != nil {
@@ -86,19 +82,19 @@ func obtainApiData() StationStateCollection {
 	return stationCollection
 }
 
-type StationStateCollection struct {
-	StationStates []StationState `xml:"station"`
+type stationStateCollection struct {
+	StationStates []stationState `xml:"station"`
 }
 
-func (s StationStateCollection) Print() {
+func (s stationStateCollection) Print() {
 	for i := 0; i < len(s.StationStates); i++ {
 		s.StationStates[i].Print()
 	}
 }
 
-type StationState struct {
+type stationState struct {
 	// TODO review which of these fields need to be parsed and which not (we could potentially have different queries for the station state and the station data, as the second will change less frequently or may even not change at all)
-	Id                int     `xml:"id"`
+	ID                int     `xml:"id"`
 	Type              string  `xml:"type"`
 	Latitude          float64 `xml:"lat"`
 	Longitude         float64 `xml:"long"`
@@ -111,8 +107,8 @@ type StationState struct {
 	Bikes             int     `xml:"bikes"`
 }
 
-func (s StationState) Print() {
-	fmt.Printf("Id : %v\n", s.Id)
+func (s stationState) Print() {
+	fmt.Printf("Id : %v\n", s.ID)
 	fmt.Printf("Type : %v\n", s.Type)
 	fmt.Printf("Latitude : %v\n", s.Latitude)
 	fmt.Printf("Longitude : %v\n", s.Longitude)
@@ -123,4 +119,8 @@ func (s StationState) Print() {
 	fmt.Printf("Status : %v\n", s.Status)
 	fmt.Printf("FreeSlots : %v\n", s.FreeSlots)
 	fmt.Printf("Bikes : %v\n", s.Bikes)
+}
+
+func persistCollection(s stationStateCollection) {
+	fmt.Println("Calling persistCollection")
 }
