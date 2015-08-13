@@ -84,6 +84,7 @@ func obtainAPIData() stationStateCollection {
 
 type stationStateCollection struct {
 	StationStates []stationState `xml:"station"`
+	Updatetime    int            `xml:"updatetime"`
 }
 
 func (s stationStateCollection) Print() {
@@ -122,5 +123,5 @@ func (s stationState) Print() {
 }
 
 func persistCollection(s stationStateCollection) {
-	fmt.Println("Calling persistCollection")
+	fmt.Println("Calling persistCollection", s.Updatetime)
 }
