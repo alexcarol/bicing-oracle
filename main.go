@@ -75,7 +75,7 @@ func obtainAPIData() StationStateCollection {
 
 	err := xml.Unmarshal(apiData, &stationCollection)
 	if err != nil {
-		fmt.Printf("Unmarshal error: %v, structure :%v", err, apiData)
+		fmt.Printf("Unmarshal error: %v\n, structure :%s", err, apiData)
 		return stationCollection
 	}
 
