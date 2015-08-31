@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 	"github.com/alexcarol/bicing-api/station-state/repository"
+	"github.com/alexcarol/bicing-api/station-state/collection"
 )
 
 func apiFakeDataProvider() []byte {
@@ -67,12 +68,12 @@ func main() {
 	<-quit
 }
 
-func obtainAPIData() repository.StationStateCollection {
+func obtainAPIData() collection.StationStateCollection {
 	startTime := time.Now()
 	apiData := apiFakeDataProvider()
 	requestEndTime := time.Now()
 
-	var stationCollection repository.StationStateCollection
+	var stationCollection collection.StationStateCollection
 
 	err := xml.Unmarshal(apiData, &stationCollection)
 	if err != nil {
@@ -85,6 +86,6 @@ func obtainAPIData() repository.StationStateCollection {
 }
 
 
-func persistCollection(s repository.StationStateCollection) {
+func persistCollection(s collection.StationStateCollection) {
 	fmt.Println("Calling persistCollection", s.Updatetime)
 }
