@@ -84,8 +84,3 @@ func obtainAPIData() collection.StationStateCollection {
 	fmt.Printf("Data successfully received, request time: %v, unmarshalling time: %v\n", requestEndTime.Sub(startTime), time.Since(requestEndTime))
 	return stationCollection
 }
-
-
-func persistCollection(s collection.StationStateCollection) {
-	fmt.Println("Calling persistCollection", s.Updatetime)
-}
