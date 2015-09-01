@@ -51,18 +51,20 @@ func main() {
 	ticker := time.NewTicker(2 * time.Second)
 	quit := make(chan struct{})
 
-	go func(s *repository.StationStateStorage) {
+	storage := repository.NewStorage()
+
+	go func() {
 		for {
 			select {
 			case <-ticker.C:
 				data := parser.Parse(apiFakeDataProvider())
-				s.PersistCollection(data)
+				storage.PersistCollection(data)
 			case <-quit:
 				ticker.Stop()
 				return
 			}
 		}
-	}(repository.NewStorage())
+	}()
 
 	<-quit
 }
