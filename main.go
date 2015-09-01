@@ -1,14 +1,13 @@
 package main
 
 import (
-	"encoding/xml"
 	"fmt"
+	"github.com/alexcarol/bicing-api/station-state/repository"
+	"github.com/alexcarol/bicing-api/station-state/parser"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
-	"github.com/alexcarol/bicing-api/station-state/repository"
-	"github.com/alexcarol/bicing-api/station-state/collection"
 )
 
 func apiFakeDataProvider() []byte {
@@ -56,7 +55,7 @@ func main() {
 		for {
 			select {
 			case <-ticker.C:
-				data := obtainAPIData()
+				data := parser.Parse(apiFakeDataProvider())
 				s.PersistCollection(data)
 			case <-quit:
 				ticker.Stop()
@@ -66,21 +65,4 @@ func main() {
 	}(repository.NewStorage())
 
 	<-quit
-}
-
-func obtainAPIData() collection.StationStateCollection {
-	startTime := time.Now()
-	apiData := apiFakeDataProvider()
-	requestEndTime := time.Now()
-
-	var stationCollection collection.StationStateCollection
-
-	err := xml.Unmarshal(apiData, &stationCollection)
-	if err != nil {
-		fmt.Printf("Unmarshal error: %v\n, structure :%s", err, apiData)
-		return stationCollection
-	}
-
-	fmt.Printf("Data successfully received, request time: %v, unmarshalling time: %v\n", requestEndTime.Sub(startTime), time.Since(requestEndTime))
-	return stationCollection
 }
