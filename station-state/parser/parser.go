@@ -1,13 +1,13 @@
 package parser
 
 import (
-    "time"
-    "fmt"
-    "encoding/xml"
-    "github.com/alexcarol/bicing-api/station-state/collection"
+	"encoding/xml"
+	"fmt"
+	"github.com/alexcarol/bicing-api/station-state/collection"
+	"time"
 )
 
-func Parse(apiData []byte) collection.StationStateCollection {
+func ParseXML(apiData []byte) collection.StationStateCollection {
 	startTime := time.Now()
 	requestEndTime := time.Now()
 
