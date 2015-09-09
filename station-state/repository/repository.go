@@ -1,9 +1,8 @@
 package repository
 
 import (
-	"github.com/alexcarol/bicing-api/station-state/collection"
+	"github.com/alexcarol/bicing-oracle/station-state/collection"
 )
-
 
 func NewStorage() *StationStateStorage {
 	return &StationStateStorage{}

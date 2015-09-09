@@ -3,9 +3,9 @@ package main
 import (
 	"time"
 
-	"github.com/alexcarol/bicing-api/station-state/datasource"
-	"github.com/alexcarol/bicing-api/station-state/parser"
-	"github.com/alexcarol/bicing-api/station-state/repository"
+	"github.com/alexcarol/bicing-oracle/station-state/datasource"
+	"github.com/alexcarol/bicing-oracle/station-state/parser"
+	"github.com/alexcarol/bicing-oracle/station-state/repository"
 )
 
 func main() {

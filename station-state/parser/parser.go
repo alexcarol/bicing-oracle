@@ -3,8 +3,9 @@ package parser
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/alexcarol/bicing-api/station-state/collection"
 	"time"
+
+	"github.com/alexcarol/bicing-oracle/station-state/collection"
 )
 
 func ParseXML(apiData []byte) collection.StationStateCollection {
