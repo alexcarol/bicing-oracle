@@ -18,7 +18,10 @@ func main() {
 		for {
 			select {
 			case <-ticker.C:
-				data := parser.ParseXML(datasource.FixtureData())
+				data, err := parser.ParseXML(datasource.FixtureData())
+				if err != nil {
+					panic("Error parsing xml")
+				}
 				storage.PersistCollection(data)
 			case <-quit:
 				ticker.Stop()
