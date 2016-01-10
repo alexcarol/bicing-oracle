@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 )
 
 // FixtureData provides data that can be used when testing the app
@@ -29,19 +28,17 @@ func FixtureData() []byte {
 }
 
 // APIData makes a query to the bicing api and returns it's contents
-func APIData() []byte {
+func APIData() ([]byte, error) {
 	response, err := http.Get("http://wservice.viabicing.cat/v1/getstations.php?v=1")
 	if err != nil {
-		fmt.Printf("Error with the request %s", err)
-		os.Exit(1)
+		return nil, fmt.Errorf("Error with the request %s", err)
 	}
 
 	defer response.Body.Close()
 	contents, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		fmt.Printf("Error with the request %s", err)
-		os.Exit(1)
+		return nil, fmt.Errorf("Error with the request %s", err)
 	}
 
-	return contents
+	return contents, nil
 }
