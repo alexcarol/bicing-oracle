@@ -1,1 +1,2 @@
-FROM golang:1.5-onbuild
+FROM golang:1.5.3
+ADD ./tools

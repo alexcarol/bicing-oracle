@@ -1,0 +1,3 @@
+FROM scratch
+ADD querybicing /
+CMD ["/querybicing"]

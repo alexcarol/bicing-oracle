@@ -3,14 +3,20 @@ package main
 import (
 	"bytes"
 	"compress/gzip"
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/alexcarol/bicing-oracle/station-state/datasource"
 )
 
 func main() {
+	db, err := sql.Open("mysql", "alex:alexpassword@/bicing_raw")
+
+	fmt.Println("Starting querybicing")
 	ticker := time.NewTicker(45 * time.Second)
 
 	quit := make(chan struct{})
@@ -19,6 +25,7 @@ func main() {
 		for {
 			select {
 			case <-ticker.C:
+				fmt.Println("Querying bicing")
 				var b bytes.Buffer
 				w := gzip.NewWriter(&b)
 

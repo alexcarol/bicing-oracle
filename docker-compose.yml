@@ -1,0 +1,24 @@
+mysqldata:
+  image: busybox
+  volumes:
+   - /var/lib/mysql
+  command: echo Data-only container for Mysql
+
+mysql:
+  image: mysql:5.7
+  volumes_from:
+   - mysqldata
+  environment:
+   MYSQL_ROOT_PASSWORD: secretpassword
+   MYSQL_USER: alex
+   MYSQL_DATABASE: bicing_raw
+   MYSQL_PASSWORD: alexpassword
+
+querybicing:
+    image: golang:1.5.3
+    command: bash -c "go get github.com/alexcarol/bicing-oracle/station-state/datasource && go run /code/querybicing.go"
+    volumes:
+        - ./tools:/code
+    environment:
+    links:
+        - mysql
