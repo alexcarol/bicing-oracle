@@ -7,7 +7,7 @@ import (
 )
 
 // FixtureData provides data that can be used when testing the app
-func FixtureData() []byte {
+func FixtureData() ([]byte, error) {
 	return []byte(`<?xml version="1.0" encoding="UTF-8"?>
     <bicing_stations>
      <updatetime><![CDATA[1415996588]]></updatetime>
@@ -24,7 +24,7 @@ func FixtureData() []byte {
                           <slots>0</slots>
                             <bikes>24</bikes>
                              </station>
-                             </bicing_stations>`)
+                             </bicing_stations>`), nil
 }
 
 // APIData makes a query to the bicing api and returns it's contents

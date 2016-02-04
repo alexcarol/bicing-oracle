@@ -1,10 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+
+	"os"
 
 	"github.com/alexcarol/bicing-oracle/station-state/datasource"
 	"github.com/alexcarol/bicing-oracle/station-state/parser"
@@ -12,11 +15,19 @@ import (
 )
 
 func main() {
+	dbName := getEnv("MYSQL_RAW_DATA_NAME", "bicing_raw")
 
-	storage, err := repository.NewSQLStorage("mysql:3306")
+	username := getEnv("MYSQL_RAW_DATA_USERNAME", "root")
+	password := getEnv("MYSQL_RAW_DATA_PASSWORD", "")
+
+	port := getEnv("MYSQL_RAW_DATA_ADDRESS", "localhost:3306")
+
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s", username, password, port, dbName))
 	if err != nil {
 		panic(err)
 	}
+
+	storage := repository.NewSQLStorage(db)
 
 	ticker := time.NewTicker(5 * time.Second)
 
@@ -48,4 +59,13 @@ func main() {
 	}()
 
 	<-quit
+}
+
+func getEnv(key string, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+
+	return value
 }
