@@ -14,7 +14,17 @@ import (
 )
 
 func main() {
-	db, err := sql.Open("mysql", "alex:alexpassword@/bicing_raw")
+	db, dberr := sql.Open("mysql", "alex:alexpassword@/bicing_raw")
+	if dberr != nil {
+		panic(dberr)
+	}
+
+	result, queryErr := db.Query("show databaes")
+	if queryErr != nil {
+		panic(queryErr)
+	}
+
+	fmt.Println(result)
 
 	fmt.Println("Starting querybicing")
 	ticker := time.NewTicker(45 * time.Second)
