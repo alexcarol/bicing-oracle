@@ -1,10 +1,7 @@
-package main
+package fakemain
 
 import (
-	"fmt"
 	"time"
-
-	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/alexcarol/bicing-oracle/station-state/datasource"
 	"github.com/alexcarol/bicing-oracle/station-state/parser"
@@ -12,34 +9,20 @@ import (
 )
 
 func main() {
-
-	storage, err := repository.NewSQLStorage("mysql:3306")
-	if err != nil {
-		panic(err)
-	}
-
-	ticker := time.NewTicker(5 * time.Second)
-
+	ticker := time.NewTicker(2 * time.Second)
 	quit := make(chan struct{})
+
+	storage := repository.NewStorage()
 
 	go func() {
 		for {
 			select {
 			case <-ticker.C:
-				apiData, err := datasource.APIData()
+				data, err := parser.ParseXML(datasource.FixtureData())
 				if err != nil {
-					fmt.Println(err)
-					break
+					panic("Error parsing xml")
 				}
-
-				data, err := parser.ParseXML(apiData)
-				if err != nil {
-					fmt.Println("Error parsing xml")
-					break
-				}
-
 				storage.PersistCollection(data)
-
 			case <-quit:
 				ticker.Stop()
 				return

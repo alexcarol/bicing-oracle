@@ -16,9 +16,9 @@ mysql:
 
 querybicing:
     image: golang:1.5.3
-    command: bash -c "go get github.com/alexcarol/bicing-oracle/station-state/datasource && go run /code/querybicing.go"
+    working_dir: /code
+    command: bash -c "go get github.com/alexcarol/bicing-oracle github.com/go-sql-driver/mysql && go run /code/main.go"
     volumes:
-        - ./tools:/code
-    environment:
+        - .:/code
     links:
         - mysql
