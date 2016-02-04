@@ -59,5 +59,7 @@ func (storage sqlStorage) PersistCollection(collection collection.StationStateCo
 }
 
 func NewSQLStorage(db *sql.DB) StationStatePersister {
+	db.Exec("CREATE TABLE IF NOT EXISTS `station` ( `id` int(11) NOT NULL, `latitude` float DEFAULT NULL, `longitude` float DEFAULT NULL, `street` varchar(255) DEFAULT NULL, `height` int(11) DEFAULT NULL, `street_number` varchar(255) DEFAULT NULL, `nearby_station_list` varchar(255) DEFAULT NULL, `last_updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (`id`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8;")
+	db.Exec("CREATE TABLE IF NOT EXISTS `station_state` ( `id` int(11) NOT NULL DEFAULT '0', `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, `slots` int(11) DEFAULT NULL, `bikes` int(11) DEFAULT NULL, PRIMARY KEY (`id`,`updatetime`), CONSTRAINT `station_state_ibfk_1` FOREIGN KEY (`id`) REFERENCES `station` (`id`) ON DELETE CASCADE ) ENGINE=InnoDB DEFAULT CHARSET=utf8;")
 	return sqlStorage{db}
 }
