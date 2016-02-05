@@ -1,13 +1,13 @@
-mysqldata:
+mysqldata_raw:
   image: busybox
   volumes:
    - /var/lib/mysql
   command: echo Data-only container for Mysql
 
-mysql:
+mysql_raw:
   image: mysql:5.7
   volumes_from:
-   - mysqldata
+   - mysqldata_raw
   environment:
    MYSQL_ROOT_PASSWORD: secretpassword
    MYSQL_USER: alex
@@ -15,12 +15,15 @@ mysql:
    MYSQL_PASSWORD: alexpassword
 
 querybicing:
-    image: golang:1.5.3
-    working_dir: /code
-    command: bash -c "go get github.com/tools/godep github.com/go-sql-driver/mysql && go run /code/main.go"
-    volumes:
-        - .:/code
-    environment:
-        GO15VENDOREXPERIMENT: 1
-    links:
-        - mysql
+  image: golang:1.5.3
+  working_dir: /code
+  command: bash -c "go get github.com/tools/godep github.com/go-sql-driver/mysql && go run /code/main.go"
+  volumes:
+   - .:/code
+  environment:
+   MYSQL_RAW_DATA_NAME: bicing_raw
+   MYSQL_RAW_DATA_USER: root
+   MYSQL_RAW_DATA_PASSWORD: secretpassword
+   MYSQL_RAW_DATA_ADDRESS: mysql_raw:3306
+  links:
+   - mysql_raw

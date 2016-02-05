@@ -17,7 +17,7 @@ import (
 func main() {
 	dbName := getEnv("MYSQL_RAW_DATA_NAME", "bicing_raw")
 
-	username := getEnv("MYSQL_RAW_DATA_USERNAME", "root")
+	username := getEnv("MYSQL_RAW_DATA_USER", "root")
 	password := getEnv("MYSQL_RAW_DATA_PASSWORD", "")
 
 	port := getEnv("MYSQL_RAW_DATA_ADDRESS", "localhost:3306")
