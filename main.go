@@ -38,13 +38,20 @@ func main() {
 
 	ticker := time.NewTicker(time.Duration(pollingTime) * time.Second)
 
+	var dataProvider datasource.BicingDataProvider
+	if getEnv("BICING_API_FETCH_REAL_DATA", "1") == "1" {
+		dataProvider = datasource.NewRealDataProvider()
+	} else {
+		dataProvider = datasource.NewFakeDataProvider()
+	}
+
 	quit := make(chan struct{})
 
 	go func() {
 		for {
 			select {
 			case <-ticker.C:
-				apiData, err := datasource.APIData()
+				apiData, err := dataProvider.Provide()
 				if err != nil {
 					fmt.Println(err)
 					break
