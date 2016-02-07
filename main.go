@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
 
 	"os"
+
+	"strconv"
 
 	"github.com/alexcarol/bicing-oracle/station-state/datasource"
 	"github.com/alexcarol/bicing-oracle/station-state/parser"
@@ -29,7 +31,12 @@ func main() {
 
 	storage := repository.NewSQLStorage(db)
 
-	ticker := time.NewTicker(5 * time.Second)
+	pollingTime, err := strconv.Atoi(getEnv("BICING_API_POLLING_TIME", "5"))
+	if err != nil {
+		panic("Error converting ascii to integer " + err.Error())
+	}
+
+	ticker := time.NewTicker(time.Duration(pollingTime) * time.Second)
 
 	quit := make(chan struct{})
 
