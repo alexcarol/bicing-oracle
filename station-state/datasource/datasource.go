@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 // FixtureData provides data that can be used when testing the app
 func FixtureData() ([]byte, error) {
-	return []byte(`<?xml version="1.0" encoding="UTF-8"?>
+	updateTime := time.Now().Unix()
+	return []byte(fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
     <bicing_stations>
-     <updatetime><![CDATA[1415996588]]></updatetime>
+     <updatetime><![CDATA[%d]]></updatetime>
       <station>
         <id>1</id>
           <type>BIKE</type>
@@ -24,7 +26,7 @@ func FixtureData() ([]byte, error) {
                           <slots>0</slots>
                             <bikes>24</bikes>
                              </station>
-                             </bicing_stations>`), nil
+                             </bicing_stations>`, updateTime)), nil
 }
 
 // APIData makes a query to the bicing api and returns it's contents
