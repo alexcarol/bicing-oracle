@@ -3,7 +3,7 @@ package parser
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/stretchr/testify/require"
 )
 
 func TestXMLParsesReturnsErrWhenNotAssignedParsableXML(t *testing.T) {

@@ -14,6 +14,8 @@ import (
 	"github.com/alexcarol/bicing-oracle/station-state/datasource"
 	"github.com/alexcarol/bicing-oracle/station-state/parser"
 	"github.com/alexcarol/bicing-oracle/station-state/repository"
+	"github.com/alexcarol/bicing-oracle/weather/api"
+	weatherRepository "github.com/alexcarol/bicing-oracle/weather/repository"
 )
 
 func main() {
@@ -30,6 +32,8 @@ func main() {
 	}
 
 	storage := repository.NewSQLStorage(db)
+
+	weatherStorage := weatherRepository.NewSQLStorage(db)
 
 	pollingTime, err := strconv.Atoi(getEnv("BICING_API_POLLING_TIME", "5"))
 	if err != nil {
@@ -51,6 +55,14 @@ func main() {
 		for {
 			select {
 			case <-ticker.C:
+				weather, err := api.GetWeatherData()
+				if err != nil {
+					fmt.Print("Error getting weather data")
+					fmt.Println(err)
+				}
+
+				weatherStorage.PersistWeather(weather)
+
 				apiData, err := dataProvider.Provide()
 				if err != nil {
 					fmt.Println(err)

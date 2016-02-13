@@ -21,6 +21,7 @@ querybicing:
   volumes:
    - .:/code/src/github.com/alexcarol/bicing-oracle
   environment:
+   OWM_API_KEY: ${OWM_API_KEY}
    BICING_API_POLLING_TIME: 45
    MYSQL_RAW_DATA_NAME: bicing_raw
    MYSQL_RAW_DATA_USER: ${MYSQL_RAW_DATA_USER_NAME}
