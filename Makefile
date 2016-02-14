@@ -1,4 +1,4 @@
-.PHONY: fmt lint check test
+.PHONY: fmt lint check test vet
 
 fmt:
 	go fmt ./...
@@ -6,7 +6,10 @@ fmt:
 lint:
 	golint ./...
 
-check: fmt lint
+vet:
+	go vet ./...
+
+check: fmt lint vet
 
 test:
 	go test -v ./...
