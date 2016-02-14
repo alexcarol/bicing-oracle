@@ -16,13 +16,13 @@ mysql_raw:
 
 querybicing:
   image: golang:1.5.3
-  working_dir: /code
-  command: bash -c "go install github.com/alexcarol/bicing-oracle && /code/bin/bicing-oracle"
+  working_dir: /code/src/github.com/alexcarol/bicing-oracle
+  command: go run main.go
   volumes:
    - .:/code/src/github.com/alexcarol/bicing-oracle
   environment:
    OWM_API_KEY: ${OWM_API_KEY}
-   BICING_API_POLLING_TIME: 45
+   BICING_API_POLLING_TIME: 5
    MYSQL_RAW_DATA_NAME: bicing_raw
    MYSQL_RAW_DATA_USER: ${MYSQL_RAW_DATA_USER_NAME}
    MYSQL_RAW_DATA_PASSWORD: ${MYSQL_RAW_DATA_USER_PASSWORD}
