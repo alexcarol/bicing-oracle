@@ -23,7 +23,7 @@ func (storage sqlStorage) PersistWeather(w api.Weather) error {
 func NewSQLStorage(db *sql.DB) weatherPersister {
 	_, err := db.Exec("CREATE TABLE IF NOT EXISTS `weather` ( `type` int(11) NOT NULL, `temperature` float DEFAULT NULL, `cloud_percentage` int(11) NOT NULL, `wind_degree` float DEFAULT NULL, `wind_speed` float DEFAULT NULL, `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`type`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8;")
 	if err != nil {
-		panic(err);
+		panic(err)
 	}
 
 	return sqlStorage{db}

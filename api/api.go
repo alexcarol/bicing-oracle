@@ -1,13 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	_ "github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
 	"os"
-	"database/sql"
 	"time"
-	_ "github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
 )
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 		var problem bool = false
 
 		var updatetime int64
-		err := db.QueryRow("select UNIX_TIMESTAMP(last_updatetime) from station order by last_updatetime desc limit 1").Scan(&updatetime);
+		err := db.QueryRow("select UNIX_TIMESTAMP(last_updatetime) from station order by last_updatetime desc limit 1").Scan(&updatetime)
 		if err != nil {
 			output += err.Error() + "\n"
 			problem = true
@@ -36,10 +36,10 @@ func main() {
 			currentTime := time.Now().Unix()
 			twoMinutesInThePast := currentTime - 120
 			if twoMinutesInThePast > updatetime {
-				problem = true;
-				output += fmt.Sprintf("Time difference too big, current time : %d, update time: %d, difference: %d\n", currentTime, updatetime, currentTime - updatetime)
+				problem = true
+				output += fmt.Sprintf("Time difference too big, current time : %d, update time: %d, difference: %d\n", currentTime, updatetime, currentTime-updatetime)
 			} else {
-				output += fmt.Sprintf( "Time difference is reasonable, current time : %d, update time: %d, difference: %d", currentTime, updatetime, currentTime - updatetime)
+				output += fmt.Sprintf("Time difference is reasonable, current time : %d, update time: %d, difference: %d", currentTime, updatetime, currentTime-updatetime)
 			}
 		}
 

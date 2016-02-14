@@ -10,7 +10,7 @@ type Weather struct {
 	WindSpeed       float64
 	WindDegree      float64
 	CloudPercentage int
-	Time int
+	Time            int
 }
 
 // GetWeatherData returns the weather data
