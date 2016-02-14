@@ -1,11 +1,12 @@
-docker-build:
-	docker build -t bicing_stats .
+.PHONY: fmt lint check test
 
-linux-build-query:
-	env GOOS=linux go build -o querybicing tools/querybicing.go && docker build -t alexcarol/querybicing -f Dockerfile.querybicing .
+fmt:
+	go fmt ./...
 
-docker-up: docker-build
-	docker run -it --rm --name bicing_app bicing_stats
+lint:
+	golint ./...
+
+check: fmt lint
 
 test:
 	go test -v ./...

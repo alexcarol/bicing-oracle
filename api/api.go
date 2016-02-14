@@ -3,11 +3,12 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	_ "github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
 )
 
 func main() {
@@ -23,8 +24,8 @@ func main() {
 	}
 
 	http.HandleFunc("/checkup", func(w http.ResponseWriter, r *http.Request) {
-		var output string = ""
-		var problem bool = false
+		var output string
+		var problem = false
 
 		var updatetime int64
 		err := db.QueryRow("select UNIX_TIMESTAMP(last_updatetime) from station order by last_updatetime desc limit 1").Scan(&updatetime)
@@ -32,7 +33,6 @@ func main() {
 			output += err.Error() + "\n"
 			problem = true
 		} else {
-
 			currentTime := time.Now().Unix()
 			twoMinutesInThePast := currentTime - 120
 			if twoMinutesInThePast > updatetime {

@@ -2,11 +2,13 @@ package collection
 
 import "fmt"
 
+// StationStateCollection contains a snapshot of the system of a point in time
 type StationStateCollection struct {
 	StationStates []stationState `xml:"station"`
 	Updatetime    int            `xml:"updatetime"`
 }
 
+// Print shows StationStateCollection data through the standard output
 func (s StationStateCollection) Print() {
 	for i := 0; i < len(s.StationStates); i++ {
 		s.StationStates[i].Print()

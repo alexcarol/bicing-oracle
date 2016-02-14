@@ -4,6 +4,7 @@ import (
 	"github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/briandowns/openweathermap"
 )
 
+// Weather represents the current weather data
 type Weather struct {
 	Temperature     float64
 	Type            int
@@ -28,11 +29,11 @@ func GetWeatherData() (Weather, error) {
 	}
 	temp := w.Main.Temp
 
-	weatherId := convertWeatherId(w.Weather[0].ID)
-	return Weather{temp, weatherId, w.Wind.Speed, w.Wind.Deg, w.Clouds.All, w.Dt}, nil
+	weatherID := convertWeatherID(w.Weather[0].ID)
+	return Weather{temp, weatherID, w.Wind.Speed, w.Wind.Deg, w.Clouds.All, w.Dt}, nil
 }
 
-func convertWeatherId(id int) int {
+func convertWeatherID(id int) int {
 	/**
 	weather codes:
 	2xx: Thunderstorm
