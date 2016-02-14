@@ -30,3 +30,20 @@ querybicing:
    GOPATH: /code
   links:
    - mysql_raw
+
+api:
+  image: golang:1.5.3
+  working_dir: /code/src/github.com/alexcarol/bicing-oracle
+  command: go run api/api.go
+  volumes:
+   - .:/code/src/github.com/alexcarol/bicing-oracle
+  environment:
+   MYSQL_RAW_DATA_NAME: bicing_raw
+   MYSQL_RAW_DATA_USER: ${MYSQL_RAW_DATA_USER_NAME}
+   MYSQL_RAW_DATA_PASSWORD: ${MYSQL_RAW_DATA_USER_PASSWORD}
+   MYSQL_RAW_DATA_ADDRESS: mysql_raw:3306
+   GOPATH: /code
+  ports:
+    - 80:80
+  links:
+   - mysql_raw
