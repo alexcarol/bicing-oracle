@@ -23,24 +23,30 @@ func main() {
 	}
 
 	http.HandleFunc("/checkup", func(w http.ResponseWriter, r *http.Request) {
+		var output string = ""
+		var problem bool = false
+
 		var updatetime int64
 		err := db.QueryRow("select UNIX_TIMESTAMP(last_updatetime) from station order by last_updatetime desc limit 1").Scan(&updatetime);
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			output += err.Error() + "\n"
+			problem = true
+		} else {
 
-			return;
+			currentTime := time.Now().Unix()
+			twoMinutesInThePast := currentTime - 120
+			if twoMinutesInThePast > updatetime {
+				problem = true;
+				output += fmt.Sprintf("Time difference too big, current time : %d, update time: %d, difference: %d\n", currentTime, updatetime, currentTime - updatetime)
+			} else {
+				output += fmt.Sprintf( "Time difference is reasonable, current time : %d, update time: %d, difference: %d", currentTime, updatetime, currentTime - updatetime)
+			}
 		}
 
-		currentTime := time.Now().Unix()
-		twoMinutesInThePast := currentTime - 120
-		if twoMinutesInThePast > updatetime {
-			http.Error(w, fmt.Sprintf("Time difference too big, current time : %d, update time: %d, difference: %d", currentTime, updatetime, currentTime - updatetime), 500)
-
-			return;
+		if problem {
+			http.Error(w, output, 500)
 		} else {
-			fmt.Fprintf(w, "Time difference is reasonable, current time : %d, update time: %d, difference: %d", currentTime, updatetime, currentTime - updatetime)
-
-			return;
+			fmt.Fprint(w, output)
 		}
 	})
 
