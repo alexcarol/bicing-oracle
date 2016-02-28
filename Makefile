@@ -1,4 +1,4 @@
-.PHONY: fmt lint check test vet
+.PHONY: fmt lint check test vet check-app docker-up docker-restart
 
 fmt:
 	go fmt ./...
@@ -13,3 +13,12 @@ check: fmt lint vet
 
 test:
 	go test -v ./...
+
+check-app:
+	wget -p http://localhost/checkup
+
+docker-up:
+	docker-compose up -d
+
+docker-restart:
+	docker-compose restart
