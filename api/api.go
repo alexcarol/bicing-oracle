@@ -50,6 +50,13 @@ func main() {
 		}
 	})
 
+	http.HandleFunc("/prediction", func(w http.ResponseWriter, r *http.Request) {
+		//var i = r.URL.Query()
+		var output string = "{\"stations\":[{\"address\":\"Gran via 123\", \"slots\":2, \"bikes\":7, \"lat\":12.2, \"lon\":12.1},{\"address\":\"Gran via 144\", \"slots\":1, \"bikes\":5, \"lat\":122, \"lon\":12.2}]}"
+
+		fmt.Fprint(w, output)
+	})
+
 	log.Fatal(http.ListenAndServe(":80", nil))
 }
 
