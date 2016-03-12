@@ -10,7 +10,7 @@ type Prediction struct {
 }
 
 // GetPredictions Returns an array of Prediction if everything goes alright
-func GetPredictions() ([]Prediction, error) {
+func GetPredictions(time int, lat float64, lon float64) ([]Prediction, error) {
 	return []Prediction{
 		{"Gran via 123", 4, 3, 1.4, 1.3},
 		{"Gran via 145", 3, 2, 1.1, 1.7},

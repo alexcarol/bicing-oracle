@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	_ "github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
 	"github.com/alexcarol/bicing-oracle/prediction"
+	"strconv"
 )
 
 func main() {
@@ -53,9 +54,26 @@ func main() {
 	})
 
 	http.HandleFunc("/prediction", func(w http.ResponseWriter, r *http.Request) {
-		//var i = r.URL.Query()
+		var i = r.URL.Query()
+		timestamp, err := strconv.Atoi(i.Get("time"))
+		if err != nil {
+			http.Error(w, err.Error(), 400)
+			return
+		}
 
-		a, err := prediction.GetPredictions()
+		lat, err := strconv.ParseFloat(i.Get("lat"), 32)
+		if err != nil {
+			http.Error(w, err.Error(), 400)
+			return
+		}
+
+		lon, err := strconv.ParseFloat(i.Get("lon"), 32)
+		if err != nil {
+			http.Error(w, err.Error(), 400)
+			return
+		}
+
+		a, err := prediction.GetPredictions(timestamp, lat, lon)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
