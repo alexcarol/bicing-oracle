@@ -46,7 +46,7 @@ func (storage sqlStorage) PersistCollection(collection collection.StationStateCo
 
 			return err
 		}
-		_, err := transaction.Exec("insert into station_state values (?, FROM_UNIXTIME(?), ?, ?);", stationState.ID, collection.Updatetime, stationState.FreeSlots, stationState.Bikes)
+		_, err := transaction.Exec("insert into station_state values (?, FROM_UNIXTIME(?), ?, ?, ?);", stationState.ID, collection.Updatetime, stationState.FreeSlots, stationState.Bikes, stationState.Status)
 		if err != nil {
 			fmt.Println("Error executing statement " + err.Error())
 			rollErr := transaction.Rollback()
