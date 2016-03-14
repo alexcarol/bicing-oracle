@@ -18,6 +18,7 @@ check-app:
 	wget -p http://localhost/checkup
 
 docker-up:
+	docker-compose stop
 	docker-compose up -d
 
 docker-restart:
