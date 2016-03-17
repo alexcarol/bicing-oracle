@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/alexcarol/bicing-oracle/station-state/collection"
+	"math"
+	"sort"
 )
 
 type stationStateStorage struct{}
@@ -60,4 +62,80 @@ func (storage sqlStorage) PersistCollection(collection collection.StationStateCo
 	}
 
 	return transaction.Commit()
+}
+
+// StationProvider gives you a list of the nearby stations
+type StationProvider interface {
+	GetNearbyStations(lat, lon float64, minStations int) ([]Station, error)
+}
+
+// Station contains info about a station
+type Station struct {
+	ID           int
+	Type         string
+	Street       string
+	StreetNumber string
+	Height       int
+	Lon          float64
+	Lat          float64
+	Distance     float64
+}
+
+// NewSQLStationProvider returns a StationStateProvider that uses mysql to retrieve the information
+func NewSQLStationProvider(db *sql.DB) StationProvider {
+	return sqlStorage{db}
+}
+
+func (storage sqlStorage) GetNearbyStations(lat float64, lon float64, minStations int) ([]Station, error) {
+	rows, err := storage.database.Query("SELECT id, latitude, longitude, street, street_number, height  FROM station")
+	if err != nil {
+		return nil, err
+	}
+
+	var stationList = make([]Station, 0, 500) // TODO check if this can be adjusted
+
+	defer rows.Close()
+	rows.Columns()
+
+	for rows.Next() {
+		var currentStation Station
+
+		err = rows.Scan(&currentStation.ID, &currentStation.Lat, &currentStation.Lon, &currentStation.Street, &currentStation.StreetNumber, &currentStation.Height)
+		if err != nil {
+			return nil, err
+		}
+
+		currentStation.Distance = distance(currentStation, lat, lon)
+		stationList = append(stationList, currentStation)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	sort.Stable(byDistance(stationList))
+
+	return stationList[:minStations], nil
+}
+
+func distance(s Station, lat, lon float64) float64 {
+	latDistance := math.Abs(s.Lat - lat)
+	lonDistance := math.Abs(s.Lon - lon)
+
+	return math.Sqrt(latDistance*latDistance + lonDistance*lonDistance)
+}
+
+type byDistance []Station
+
+func (s byDistance) Len() int {
+	return len(s)
+}
+
+func (s byDistance) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s byDistance) Less(i, j int) bool {
+	return s[i].Distance < s[j].Distance
 }

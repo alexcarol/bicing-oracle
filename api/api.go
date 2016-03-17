@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	_ "github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
 	"github.com/alexcarol/bicing-oracle/prediction"
+	"github.com/alexcarol/bicing-oracle/station-state/repository"
 	"strconv"
 )
 
@@ -25,6 +26,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	var stationProvider = repository.NewSQLStationProvider(db)
 
 	http.HandleFunc("/checkup", func(w http.ResponseWriter, r *http.Request) {
 		var output string
@@ -57,23 +60,23 @@ func main() {
 		var i = r.URL.Query()
 		timestamp, err := strconv.Atoi(i.Get("time"))
 		if err != nil {
-			http.Error(w, err.Error(), 400)
+			http.Error(w, "Error parsing time", 400)
 			return
 		}
 
 		lat, err := strconv.ParseFloat(i.Get("lat"), 32)
 		if err != nil {
-			http.Error(w, err.Error(), 400)
+			http.Error(w, "Error parsing lat", 400)
 			return
 		}
 
 		lon, err := strconv.ParseFloat(i.Get("lon"), 32)
 		if err != nil {
-			http.Error(w, err.Error(), 400)
+			http.Error(w, "Error parsing lon", 400)
 			return
 		}
 
-		a, err := prediction.GetPredictions(timestamp, lat, lon)
+		a, err := prediction.GetPredictions(timestamp, lat, lon, stationProvider)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
