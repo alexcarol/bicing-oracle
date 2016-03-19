@@ -2,12 +2,12 @@ package repository
 
 import (
 	"database/sql"
-	"github.com/alexcarol/bicing-oracle/weather/api"
+	"github.com/alexcarol/bicing-oracle/weather/datasource"
 )
 
 // WeatherPersister takes the data from a Weather object and saves it to a persistent storage
 type WeatherPersister interface {
-	PersistWeather(api.Weather) error
+	PersistWeather(datasource.Weather) error
 }
 
 type sqlStorage struct {
@@ -24,7 +24,7 @@ func NewSQLStorage(db *sql.DB) WeatherPersister {
 	return sqlStorage{db}
 }
 
-func (storage sqlStorage) PersistWeather(w api.Weather) error {
+func (storage sqlStorage) PersistWeather(w datasource.Weather) error {
 
 	_, err := storage.database.Exec("insert into weather values (?, ?, ?, ?, ?, FROM_UNIXTIME(?));", w.Type, w.Temperature, w.CloudPercentage, w.WindDegree, w.WindSpeed, w.Time)
 

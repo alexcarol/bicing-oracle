@@ -1,4 +1,4 @@
-package api
+package datasource
 
 import (
 	"github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/briandowns/openweathermap"

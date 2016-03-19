@@ -14,7 +14,7 @@ import (
 	"github.com/alexcarol/bicing-oracle/station-state/datasource"
 	"github.com/alexcarol/bicing-oracle/station-state/parser"
 	"github.com/alexcarol/bicing-oracle/station-state/repository"
-	"github.com/alexcarol/bicing-oracle/weather/api"
+	weatherDatasource "github.com/alexcarol/bicing-oracle/weather/datasource"
 	weatherRepository "github.com/alexcarol/bicing-oracle/weather/repository"
 )
 
@@ -55,7 +55,7 @@ func main() {
 		for {
 			select {
 			case <-ticker.C:
-				weather, err := api.GetWeatherData()
+				weather, err := weatherDatasource.GetWeatherData()
 				if err != nil {
 					fmt.Print("Error getting weather data")
 					fmt.Println(err)
