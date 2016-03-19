@@ -12,6 +12,7 @@ import (
 	_ "github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
 	"github.com/alexcarol/bicing-oracle/prediction"
 	"github.com/alexcarol/bicing-oracle/station-state/repository"
+	"net/url"
 	"strconv"
 )
 
@@ -50,6 +51,7 @@ func main() {
 		}
 
 		if problem {
+			log.Println(output)
 			http.Error(w, output, 500)
 		} else {
 			fmt.Fprint(w, output)
@@ -57,20 +59,21 @@ func main() {
 	})
 
 	http.HandleFunc("/prediction", func(w http.ResponseWriter, r *http.Request) {
-		var i = r.URL.Query()
-		timestamp, err := strconv.Atoi(i.Get("time"))
+		var query = r.URL.Query()
+		timestamp, err := parseRequestInt(query, "time")
 		if err != nil {
-			http.Error(w, "Error parsing time", 400)
+			output := "Error parsing time"
+			http.Error(w, output, 400)
 			return
 		}
 
-		lat, err := strconv.ParseFloat(i.Get("lat"), 32)
+		lat, err := parseRequestFloat64(query, "lat")
 		if err != nil {
 			http.Error(w, "Error parsing lat", 400)
 			return
 		}
 
-		lon, err := strconv.ParseFloat(i.Get("lon"), 32)
+		lon, err := parseRequestFloat64(query, "lon")
 		if err != nil {
 			http.Error(w, "Error parsing lon", 400)
 			return
@@ -100,4 +103,22 @@ func getEnv(key string, defaultValue string) string {
 	}
 
 	return value
+}
+
+func parseRequestInt(query url.Values, name string) (int, error) {
+	result, err := strconv.Atoi(query.Get(name))
+	if err != nil {
+		log.Println(err)
+	}
+
+	return result, err
+}
+
+func parseRequestFloat64(query url.Values, name string) (float64, error) {
+	result, err := strconv.ParseFloat(query.Get(name), 64)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return result, err
 }
