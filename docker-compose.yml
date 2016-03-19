@@ -15,7 +15,7 @@ mysql_raw:
    MYSQL_PASSWORD: ${MYSQL_RAW_DATA_USER_PASSWORD}
 
 querybicing:
-  image: golang:1.5.3
+  image: golang:1.6.0
   working_dir: /code/src/github.com/alexcarol/bicing-oracle
   command: go run main.go
   volumes:
@@ -32,7 +32,7 @@ querybicing:
    - mysql_raw
 
 api:
-  image: golang:1.5.3
+  image: golang:1.6.0
   working_dir: /code/src/github.com/alexcarol/bicing-oracle
   command: go run api/api.go
   volumes:
