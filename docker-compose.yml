@@ -22,7 +22,7 @@ querybicing:
    - .:/code/src/github.com/alexcarol/bicing-oracle
   environment:
    OWM_API_KEY: ${OWM_API_KEY}
-   BICING_API_POLLING_TIME: 5
+   BICING_API_POLLING_TIME: ${BICING_API_POLLING_TIME}
    MYSQL_RAW_DATA_NAME: bicing_raw
    MYSQL_RAW_DATA_USER: ${MYSQL_RAW_DATA_USER_NAME}
    MYSQL_RAW_DATA_PASSWORD: ${MYSQL_RAW_DATA_USER_PASSWORD}
