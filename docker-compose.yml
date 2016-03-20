@@ -5,7 +5,7 @@ mysqldata_raw:
   command: echo Data-only container for Mysql
 
 mysql_raw:
-  image: mysql:5.7
+  image: mysql:5.7.11
   volumes_from:
    - mysqldata_raw
   environment:
