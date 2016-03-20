@@ -79,12 +79,16 @@ func main() {
 			return
 		}
 
-		a, err := prediction.GetPredictions(timestamp, lat, lon, stationProvider)
+		predictions, err := prediction.GetPredictions(timestamp, lat, lon, stationProvider)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
 		}
-		output, err := json.Marshal(a)
+
+		predictionMap := map[string]([]prediction.Prediction){
+			"stations": predictions,
+		}
+		output, err := json.Marshal(predictionMap)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
