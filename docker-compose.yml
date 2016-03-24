@@ -8,6 +8,8 @@ mysql_raw:
   image: mysql:5.7.11
   volumes_from:
    - mysqldata_raw
+  volumes:
+   - ./config/mysql:/etc/mysql/conf.d
   environment:
    MYSQL_ROOT_PASSWORD: ${MYSQL_RAW_DATA_ROOT_PASSWORD}
    MYSQL_USER: ${MYSQL_RAW_DATA_USER_NAME}
