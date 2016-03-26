@@ -42,7 +42,8 @@ func (storage sqlStorage) PersistCollection(collection collection.StationStateCo
 			fmt.Println("Error executing statement " + stationInsertErr.Error())
 			rollErr := transaction.Rollback()
 			if rollErr != nil {
-				fmt.Println("Error doing rollback" + err.Error())
+				fmt.Println("Error doing rollback" + rollErr.Error())
+
 				return rollErr
 			}
 
@@ -53,7 +54,8 @@ func (storage sqlStorage) PersistCollection(collection collection.StationStateCo
 			fmt.Println("Error executing statement " + err.Error())
 			rollErr := transaction.Rollback()
 			if rollErr != nil {
-				fmt.Println("Error doing rollback" + err.Error())
+				fmt.Println("Error doing rollback" + rollErr.Error())
+
 				return rollErr
 			}
 
