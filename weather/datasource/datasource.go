@@ -1,6 +1,8 @@
 package datasource
 
 import (
+	"log"
+
 	"github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/briandowns/openweathermap"
 )
 
@@ -16,9 +18,9 @@ type Weather struct {
 
 // GetWeatherData returns the weather data
 func GetWeatherData() (Weather, error) {
-	w, err := openweathermap.NewCurrent("C", "ES")
-
 	var currentWeather Weather
+
+	w, err := openweathermap.NewCurrent("C", "ES")
 	if err != nil {
 		return currentWeather, err
 	}
@@ -27,10 +29,20 @@ func GetWeatherData() (Weather, error) {
 	if err != nil {
 		return currentWeather, err
 	}
-	temp := w.Main.Temp
+	currentWeather.Temperature = w.Main.Temp
+	currentWeather.WindDegree = w.Wind.Deg
+	currentWeather.WindSpeed = w.Wind.Speed
+	currentWeather.CloudPercentage = w.Clouds.All
+	currentWeather.Time = w.Dt
 
-	weatherID := convertWeatherID(w.Weather[0].ID)
-	return Weather{temp, weatherID, w.Wind.Speed, w.Wind.Deg, w.Clouds.All, w.Dt}, nil
+	if len(w.Weather) >= 1 {
+		currentWeather.Type = convertWeatherID(w.Weather[0].ID)
+	} else {
+		log.Println("Weather only ")
+		currentWeather.Type = -1
+	}
+
+	return currentWeather, nil
 }
 
 func convertWeatherID(id int) int {
