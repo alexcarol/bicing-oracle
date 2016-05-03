@@ -7,25 +7,13 @@ import (
 	"time"
 )
 
-// NewRealDataProvider returns a BicingDataProvider that provides real data
-func NewRealDataProvider() BicingDataProvider {
-	return realData{}
-}
-
-// NewFakeDataProvider returns a BicingDataProvider that provides fake data
-func NewFakeDataProvider() BicingDataProvider {
-	return fakeData{}
-}
-
 // BicingDataProvider provides data for the current state from the bicing API
-type BicingDataProvider interface {
-	Provide() ([]byte, error)
-}
+type BicingDataProvider func() ([]byte, error)
 
 type fakeData struct{}
 
-// FixtureData provides data that can be used when testing the app
-func (f fakeData) Provide() ([]byte, error) {
+// ProvideFakeData provides data that can be used when testing the app
+func ProvideFakeData() ([]byte, error) {
 	updateTime := time.Now().Unix()
 	return []byte(fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
     <bicing_stations>
@@ -46,9 +34,8 @@ func (f fakeData) Provide() ([]byte, error) {
                              </bicing_stations>`, updateTime)), nil
 }
 
-type realData struct{}
-
-func (r realData) Provide() ([]byte, error) {
+// ProvideAPIData gives you bicing data extracted from the api
+func ProvideAPIData() ([]byte, error) {
 	response, err := http.Get("http://wservice.viabicing.cat/v1/getstations.php?v=1")
 	if err != nil {
 		return nil, fmt.Errorf("Error with the request %s", err)

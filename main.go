@@ -11,12 +11,13 @@ import (
 
 	"strconv"
 
+	"log"
+
 	"github.com/alexcarol/bicing-oracle/station-state/datasource"
 	"github.com/alexcarol/bicing-oracle/station-state/parser"
 	"github.com/alexcarol/bicing-oracle/station-state/repository"
 	weatherDatasource "github.com/alexcarol/bicing-oracle/weather/datasource"
 	weatherRepository "github.com/alexcarol/bicing-oracle/weather/repository"
-	"log"
 )
 
 func main() {
@@ -45,9 +46,9 @@ func main() {
 
 	var dataProvider datasource.BicingDataProvider
 	if getEnv("BICING_API_FETCH_REAL_DATA", "1") == "1" {
-		dataProvider = datasource.NewRealDataProvider()
+		dataProvider = datasource.ProvideAPIData
 	} else {
-		dataProvider = datasource.NewFakeDataProvider()
+		dataProvider = datasource.ProvideFakeData
 	}
 
 	quit := make(chan struct{})
@@ -64,7 +65,7 @@ func main() {
 
 				weatherStorage.PersistWeather(weather)
 
-				apiData, err := dataProvider.Provide()
+				apiData, err := dataProvider()
 				if err != nil {
 					fmt.Println(err)
 					break
