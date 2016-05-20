@@ -8,12 +8,14 @@ import (
 	"os"
 	"time"
 
+	"encoding/csv"
 	"encoding/json"
+	"net/url"
+	"strconv"
+
 	_ "github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
 	"github.com/alexcarol/bicing-oracle/prediction"
 	"github.com/alexcarol/bicing-oracle/station-state/repository"
-	"net/url"
-	"strconv"
 )
 
 func main() {
@@ -55,6 +57,53 @@ func main() {
 			http.Error(w, output, 500)
 		} else {
 			fmt.Fprint(w, output)
+		}
+	})
+
+	http.HandleFunc("/dumpdata", func(w http.ResponseWriter, r *http.Request) {
+		var query = r.URL.Query()
+
+		timestamp, err := parseRequestInt(query, "time")
+		if err != nil {
+			output := "Error parsing time"
+			http.Error(w, output, 400)
+			return
+		}
+
+		stationID, err := parseRequestInt(query, "station_id")
+		if err != nil {
+			output := "Error parsing stationId"
+			http.Error(w, output, 400)
+			return
+		}
+
+		startTime := time.Unix(int64(timestamp), 0)
+
+		durationInSeconds, err := parseRequestInt(query, "duration")
+		if err != nil {
+			output := "Error parsing stationId"
+			http.Error(w, output, 400)
+			return
+		}
+		var duration = time.Duration(durationInSeconds) * time.Second
+
+		var states []repository.StationState
+		states, err = stationProvider.GetStationStateByInterval(stationID, startTime, duration)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		writer := csv.NewWriter(w)
+
+		writer.Write([]string{"ID", "bikes", "slots", "time"})
+		for _, state := range states {
+			writer.Write([]string{strconv.Itoa(state.ID), strconv.Itoa(state.Bikes), strconv.Itoa(state.Slots), strconv.Itoa(int(state.Time))})
+		}
+
+		writer.Flush()
+		err = writer.Error()
+		if err != nil {
+			http.Error(w, err.Error(), 500)
 		}
 	})
 

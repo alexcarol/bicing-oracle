@@ -3,10 +3,12 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
-	"github.com/alexcarol/bicing-oracle/station-state/collection"
 	"math"
 	"sort"
+
+	"github.com/alexcarol/bicing-oracle/station-state/collection"
 )
 
 type stationStateStorage struct{}
@@ -69,6 +71,7 @@ func (storage sqlStorage) PersistCollection(collection collection.StationStateCo
 // StationProvider gives you a list of the nearby stations
 type StationProvider interface {
 	GetNearbyStations(lat, lon float64, minStations int) ([]Station, error)
+	GetStationStateByInterval(stationID int, start time.Time, duration time.Duration) ([]StationState, error)
 }
 
 // Station contains info about a station
@@ -81,6 +84,12 @@ type Station struct {
 	Lon          float64
 	Lat          float64
 	Distance     float64
+}
+
+// StationState represents the state of a current station in a point in time
+type StationState struct {
+	ID, Bikes, Slots int
+	Time             int64
 }
 
 // NewSQLStationProvider returns a StationStateProvider that uses mysql to retrieve the information
@@ -119,6 +128,36 @@ func (storage sqlStorage) GetNearbyStations(lat float64, lon float64, minStation
 	sort.Stable(byDistance(stationList))
 
 	return stationList[:minStations], nil
+}
+
+func (storage sqlStorage) GetStationStateByInterval(stationID int, start time.Time, duration time.Duration) ([]StationState, error) {
+	rows, err := storage.database.Query("SELECT id, bikes, slots, UNIX_TIMESTAMP(updatetime) FROM station_state where updatetime > ? AND updatetime < ?", start, start.Add(duration))
+	if err != nil {
+		return nil, err
+	}
+
+	var stationList = make([]StationState, 0, 10000)
+
+	defer rows.Close()
+	rows.Columns()
+
+	for rows.Next() {
+		var currentStation StationState
+
+		err = rows.Scan(&currentStation.ID, &currentStation.Bikes, &currentStation.Slots, &currentStation.Time)
+		if err != nil {
+			return nil, err
+		}
+
+		stationList = append(stationList, currentStation)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return stationList, nil
 }
 
 func distance(s Station, lat, lon float64) float64 {
