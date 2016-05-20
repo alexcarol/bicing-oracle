@@ -131,7 +131,7 @@ func (storage sqlStorage) GetNearbyStations(lat float64, lon float64, minStation
 }
 
 func (storage sqlStorage) GetStationStateByInterval(stationID int, start time.Time, duration time.Duration) ([]StationState, error) {
-	rows, err := storage.database.Query("SELECT id, bikes, slots, UNIX_TIMESTAMP(updatetime) FROM station_state where updatetime > ? AND updatetime < ?", start, start.Add(duration))
+	rows, err := storage.database.Query("SELECT id, bikes, slots, UNIX_TIMESTAMP(updatetime) FROM station_state WHERE id=? AND updatetime > ? AND updatetime < ?", stationID, start, start.Add(duration))
 	if err != nil {
 		return nil, err
 	}
