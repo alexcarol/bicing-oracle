@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+
 	"github.com/alexcarol/bicing-oracle/weather/datasource"
 )
 
@@ -16,7 +17,7 @@ type sqlStorage struct {
 
 // NewSQLStorage returns a WeatherPersister that stores data in the database/sql passed
 func NewSQLStorage(db *sql.DB) WeatherPersister {
-	_, err := db.Exec("CREATE TABLE IF NOT EXISTS `weather` ( `type` int(11) NOT NULL, `temperature` float DEFAULT NULL, `cloud_percentage` int(11) NOT NULL, `wind_degree` float DEFAULT NULL, `wind_speed` float DEFAULT NULL, `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`type`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8;")
+	_, err := db.Exec("CREATE TABLE IF NOT EXISTS `weather` ( `type` int(11) NOT NULL, `temperature` float DEFAULT NULL, `cloud_percentage` int(11) NOT NULL, `wind_degree` float DEFAULT NULL, `wind_speed` float DEFAULT NULL, `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`time`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8;")
 	if err != nil {
 		panic(err)
 	}

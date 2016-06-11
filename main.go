@@ -63,7 +63,10 @@ func main() {
 					log.Println(err)
 				}
 
-				weatherStorage.PersistWeather(weather)
+				err = weatherStorage.PersistWeather(weather)
+				if err != nil {
+					log.Println("Error persisting weather", err)
+				}
 
 				apiData, err := dataProvider()
 				if err != nil {
