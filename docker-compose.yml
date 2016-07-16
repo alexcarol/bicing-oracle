@@ -1,3 +1,8 @@
+rserve:
+  image: wnagele/rserve:latest
+  ports:
+    - 6311:6311
+
 mysqldata_raw:
   image: busybox
   volumes:
