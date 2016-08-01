@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 
 	"github.com/senseyeio/roger"
 )
@@ -20,7 +21,15 @@ func main() {
 		fmt.Println(value) // 3.141592653589793
 	}
 
-	helloWorld, _ := rClient.Eval("as.character('Hello World')")
+	content, err := ioutil.ReadFile("fitCalculator.R")
+	if err != nil {
+		panic(err)
+	}
+
+	helloWorld, err := rClient.Eval(string(content) + "calculateFit(\"potato\")")
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println(helloWorld) // Hello World
 
 	arrChan := rClient.Evaluate("Sys.sleep(5); c(1,1)")
