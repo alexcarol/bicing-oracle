@@ -1,8 +1,9 @@
 package prediction
 
 import (
-	"github.com/alexcarol/bicing-oracle/station-state/repository"
 	"math/rand"
+
+	"github.com/alexcarol/bicing-oracle/station-state/repository"
 )
 
 // Prediction contains a prediction for a station at a certain time
