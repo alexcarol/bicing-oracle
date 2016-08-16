@@ -15,12 +15,12 @@ data <- dbGetQuery(mydb, query)
 
 fit <- randomForest(as.factor(pbikes) ~ updatetime, data=data, importance=TRUE, ntree=100)
 
-dbGetQuery(mydb, "CREATE TABLE IF NOT EXISTS fits (id varchar(255), object text)")
 
 serializedObject <- serialize(fit, NULL, ascii=T)
+dbDisconnect(mydb)
 
-objectID <- sprintf("station_%d.fit", stationID)
-dbGetQuery(mydb, sprintf("INSERT INTO fits VALUES('%s', '%s')", objectID, fit))
+objectID <- sprintf("/tmp/station/station_%d.fit", stationID)
+print(objectID)
+saveRDS(fit, objectID)
 
 ##TODO use a normalized table/view with the weather as well
-dbDisconnect(mydb)

@@ -37,7 +37,6 @@ func readFit(stationID uint) error {
 		return fmt.Errorf("%v: %s", err, errOut.String())
 	}
 	fmt.Println(out.String())
-	//fmt.Println(errOut.String())
 
 	return nil
 }

@@ -27,11 +27,15 @@ func calculateFit(stationID uint) error {
 		strconv.FormatUint(uint64(stationID), 10),
 	)
 	var out bytes.Buffer
-	cmd.Stderr = &out
+	var errOut bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &errOut
+
 	err := cmd.Run()
 
+	fmt.Println(out.String())
 	if err != nil {
-		return fmt.Errorf("%v: %s", err, out.String())
+		return fmt.Errorf("%v: %s", err, errOut.String())
 	}
 
 	return nil
