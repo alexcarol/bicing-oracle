@@ -25,8 +25,8 @@ func getBikeProbability(stationID uint, updatetime int, weather int) (float64, e
 		scriptPath,
 		strconv.FormatUint(uint64(stationID), 10),
 		strconv.FormatBool(true), // predictBikes variable
-		strconv.FormatInt(int64(updatetime), 10),
-		strconv.FormatInt(int64(weather), 10),
+		strconv.Itoa(updatetime),
+		strconv.Itoa(weather),
 	)
 	var out bytes.Buffer
 	var errOut bytes.Buffer

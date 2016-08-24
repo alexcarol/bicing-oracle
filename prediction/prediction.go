@@ -23,13 +23,13 @@ func GetPredictions(time int, lat float64, lon float64, stationProvider reposito
 
 	var predictions = make([]Prediction, len(stations))
 
-	weather, err := datasource.GetWeatherData()
+	weather, err := datasource.GetForecast(time)
 	if err != nil {
 		return nil, err
 	}
 
 	for i, station := range stations {
-		probability, err := getBikeProbability(station.ID, time, weather.Type)
+		probability, err := getBikeProbability(station.ID, time, weather)
 		if err != nil { // TODO consider ignoring failed cases but adding a metric
 			return nil, err
 		}

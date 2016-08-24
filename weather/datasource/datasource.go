@@ -1,6 +1,7 @@
 package datasource
 
 import (
+	"errors"
 	"log"
 
 	"github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/briandowns/openweathermap"
@@ -16,16 +17,63 @@ type Weather struct {
 	Time            int
 }
 
+const temperatureUnit = "C"
+const language = "ES"
+const barcelonaWeatherID = 3128760
+
+// GetForecast returns the weather forecast for a time
+func GetForecast(time int) (int, error) {
+	// this uses only the daily prediction, better use 3-hour precision prediction
+	forecastPredictor, err := openweathermap.NewForecast(temperatureUnit, language)
+	if err != nil {
+		return 0, err
+	}
+
+	// TODO cache this to prevent too many api calls
+	err = forecastPredictor.DailyByID(barcelonaWeatherID, 5)
+	if err != nil {
+		return 0, err
+	}
+
+	var minI int
+	var minDiff = -1
+
+	for i, forecast := range forecastPredictor.List {
+		if minDiff == -1 {
+			minI = i
+			minDiff = abs(time - forecast.Dt)
+		} else if abs(time-forecast.Dt) < minDiff {
+			minI = i
+			minDiff = abs(time - forecast.Dt)
+		}
+	}
+
+	forecast := forecastPredictor.List[minI]
+	if len(forecast.Weather) < 0 {
+		return 0, errors.New("Weather length should not be 0")
+	}
+
+	return convertWeatherID(forecast.Weather[0].ID), nil
+}
+
+func abs(i int) int {
+	if i > 0 {
+		return int(i)
+	}
+
+	return int(-i)
+}
+
 // GetWeatherData returns the weather data
 func GetWeatherData() (Weather, error) {
 	var currentWeather Weather
 
-	w, err := openweathermap.NewCurrent("C", "ES")
+	w, err := openweathermap.NewCurrent(temperatureUnit, language)
 	if err != nil {
 		return currentWeather, err
 	}
 
-	err = w.CurrentByID(3128760) // Barcelona ID
+	err = w.CurrentByID(barcelonaWeatherID) // Barcelona ID
 	if err != nil {
 		return currentWeather, err
 	}
