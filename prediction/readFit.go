@@ -19,14 +19,14 @@ func init() {
 	scriptPath = path.Join(path.Dir(filename), "fitReader.R")
 }
 
-func getBikeProbability(stationID uint, updatetime int, weather int64) (float64, error) {
+func getBikeProbability(stationID uint, updatetime int, weather int) (float64, error) {
 	cmd := exec.Command(
 		"Rscript",
 		scriptPath,
 		strconv.FormatUint(uint64(stationID), 10),
 		strconv.FormatBool(true), // predictBikes variable
 		strconv.FormatInt(int64(updatetime), 10),
-		strconv.FormatInt(weather, 10),
+		strconv.FormatInt(int64(weather), 10),
 	)
 	var out bytes.Buffer
 	var errOut bytes.Buffer

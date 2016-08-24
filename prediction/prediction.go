@@ -1,6 +1,9 @@
 package prediction
 
-import "github.com/alexcarol/bicing-oracle/station-state/repository"
+import (
+	"github.com/alexcarol/bicing-oracle/station-state/repository"
+	"github.com/alexcarol/bicing-oracle/weather/datasource"
+)
 
 // Prediction contains a prediction for a station at a certain time
 type Prediction struct {
@@ -20,10 +23,13 @@ func GetPredictions(time int, lat float64, lon float64, stationProvider reposito
 
 	var predictions = make([]Prediction, len(stations))
 
-	var weather int64
+	weather, err := datasource.GetWeatherData()
+	if err != nil {
+		return nil, err
+	}
 
 	for i, station := range stations {
-		probability, err := getBikeProbability(station.ID, time, weather)
+		probability, err := getBikeProbability(station.ID, time, weather.Type)
 		if err != nil { // TODO consider ignoring failed cases but adding a metric
 			return nil, err
 		}
