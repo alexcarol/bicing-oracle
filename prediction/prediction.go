@@ -1,19 +1,14 @@
 package prediction
 
-import (
-	"math/rand"
-
-	"github.com/alexcarol/bicing-oracle/station-state/repository"
-)
+import "github.com/alexcarol/bicing-oracle/station-state/repository"
 
 // Prediction contains a prediction for a station at a certain time
 type Prediction struct {
-	ID      int     `json:"id"`
-	Address string  `json:"address"`
-	Slots   int     `json:"slots"`
-	Bikes   int     `json:"bikes"`
-	Lon     float64 `json:"lon"`
-	Lat     float64 `json:"lat"`
+	ID              uint    `json:"id"`
+	Address         string  `json:"address"`
+	BikeProbability float64 `json:"probability"`
+	Lon             float64 `json:"lon"`
+	Lat             float64 `json:"lat"`
 }
 
 // GetPredictions Returns an array of Prediction if everything goes alright
@@ -25,8 +20,21 @@ func GetPredictions(time int, lat float64, lon float64, stationProvider reposito
 
 	var predictions = make([]Prediction, len(stations))
 
+	var weather int64
+
 	for i, station := range stations {
-		predictions[i] = Prediction{station.ID, station.Street + ", " + station.StreetNumber, rand.Int() % 20, rand.Int() % 20, station.Lon, station.Lat}
+		probability, err := getBikeProbability(station.ID, time, weather)
+		if err != nil { // TODO consider ignoring failed cases but adding a metric
+			return nil, err
+		}
+
+		predictions[i] = Prediction{
+			station.ID,
+			station.Street + ", " + station.StreetNumber,
+			probability,
+			station.Lon,
+			station.Lat,
+		}
 	}
 
 	return predictions, nil

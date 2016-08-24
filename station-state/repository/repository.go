@@ -76,7 +76,7 @@ type StationProvider interface {
 
 // Station contains info about a station
 type Station struct {
-	ID           int
+	ID           uint
 	Type         string
 	Street       string
 	StreetNumber string
