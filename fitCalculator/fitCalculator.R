@@ -3,12 +3,16 @@ library(randomForest)
 
 args <- commandArgs(trailingOnly = TRUE)
 stationID <-as.integer(args[1])
+from <- as.integer(args[1])
+to <- as.integer(args[1])
 
 mydb <- dbConnect(MySQL(), user='root', dbname='bicing_oracle_raw')
 
 query <-  sprintf(
-    "SELECT pbikes, weather_type, UNIX_TIMESTAMP(updatetime) as updatetime FROM fit_precalculation WHERE id=%d", ## updatetime > X?
-    stationID
+    "SELECT pbikes, weather_type, UNIX_TIMESTAMP(updatetime) as updatetime FROM fit_precalculation WHERE id=%d AND updatetime >= FROM_UNIXTIME(%d) AND FROM_UNIXTIME(%d) <= updatetime",
+    stationID,
+    from,
+    to
 )
 data <- dbGetQuery(mydb, query)
 

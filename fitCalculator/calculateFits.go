@@ -1,4 +1,4 @@
-package main
+package fitCalculator
 
 import (
 	"bytes"
@@ -9,12 +9,8 @@ import (
 	"strconv"
 )
 
-func main() {
-	err := calculateFit(1)
-	fmt.Println(err)
-}
-
-func calculateFit(stationID uint) error {
+// CalculateFit calculates the fit for a station using
+func CalculateFit(stationID uint, from, to int64) error {
 	_, filename, _, ok := runtime.Caller(1)
 	if !ok {
 		return fmt.Errorf("Error obtaining the filename")
@@ -25,6 +21,8 @@ func calculateFit(stationID uint) error {
 		"Rscript",
 		path,
 		strconv.FormatUint(uint64(stationID), 10),
+		strconv.FormatInt(from, 10),
+		strconv.FormatInt(to, 10),
 	)
 	var out bytes.Buffer
 	var errOut bytes.Buffer
@@ -33,7 +31,6 @@ func calculateFit(stationID uint) error {
 
 	err := cmd.Run()
 
-	fmt.Println(out.String())
 	if err != nil {
 		return fmt.Errorf("%v: %s", err, errOut.String())
 	}

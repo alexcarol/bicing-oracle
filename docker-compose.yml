@@ -42,6 +42,7 @@ api:
   command: go run api/api.go
   volumes:
    - .:/code/src/github.com/alexcarol/bicing-oracle
+   - /tmp/
   environment:
    MYSQL_RAW_DATA_NAME: bicing_raw
    MYSQL_RAW_DATA_USER: ${MYSQL_RAW_DATA_USER_NAME}

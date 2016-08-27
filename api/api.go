@@ -14,6 +14,7 @@ import (
 	"strconv"
 
 	_ "github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
+	"github.com/alexcarol/bicing-oracle/fitCalculator"
 	"github.com/alexcarol/bicing-oracle/prediction"
 	"github.com/alexcarol/bicing-oracle/station-state/repository"
 )
@@ -32,6 +33,7 @@ func main() {
 
 	var stationProvider = repository.NewSQLStationProvider(db)
 
+	http.HandleFunc("/admin/calculateFit", getCalculateFitHandler())
 	http.HandleFunc("/checkup", getHealthCheckHandler(db))
 
 	http.HandleFunc("/dumpdata", getDumpDataHandler(stationProvider))
@@ -39,6 +41,31 @@ func main() {
 	http.HandleFunc("/prediction", getPredictionHandler(stationProvider))
 
 	log.Fatal(http.ListenAndServe(":80", nil))
+}
+func getCalculateFitHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var query = r.URL.Query()
+
+		stationID, err := parseRequestInt(query, "stationID")
+		if err != nil {
+			http.Error(w, err.Error(), 400)
+			return
+		}
+		from, err := parseRequestInt(query, "from")
+		if err != nil {
+			http.Error(w, err.Error(), 400)
+			return
+		}
+		to, err := parseRequestInt(query, "to")
+		if err != nil {
+			http.Error(w, err.Error(), 400)
+			return
+		}
+		err = fitCalculator.CalculateFit(uint(stationID), int64(from), int64(to))
+		if err != nil {
+			http.Error(w, err.Error(), 400)
+		}
+	}
 }
 
 func getHealthCheckHandler(db *sql.DB) http.HandlerFunc {
