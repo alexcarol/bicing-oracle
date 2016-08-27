@@ -9,17 +9,21 @@ import (
 	"strconv"
 )
 
-// CalculateFit calculates the fit for a station using
-func CalculateFit(stationID uint, from, to int64) error {
+var scriptPath string
+
+func init() {
 	_, filename, _, ok := runtime.Caller(1)
 	if !ok {
-		return fmt.Errorf("Error obtaining the filename")
+		panic(fmt.Errorf("Error obtaining the filename"))
 	}
-	path := path.Join(path.Dir(filename), "fitCalculator.R")
+	scriptPath = path.Join(path.Dir(filename), "fitCalculator.R")
+}
 
+// CalculateFit calculates the fit for a station using
+func CalculateFit(stationID uint, from, to int64) error {
 	cmd := exec.Command(
 		"Rscript",
-		path,
+		scriptPath,
 		strconv.FormatUint(uint64(stationID), 10),
 		strconv.FormatInt(from, 10),
 		strconv.FormatInt(to, 10),
@@ -32,7 +36,12 @@ func CalculateFit(stationID uint, from, to int64) error {
 	err := cmd.Run()
 
 	if err != nil {
-		return fmt.Errorf("%v: %s", err, errOut.String())
+		return fmt.Errorf(
+			"error calculating fit: %v: out:%s, err:%s",
+			err,
+			out.String(),
+			errOut.String(),
+		)
 	}
 
 	return nil

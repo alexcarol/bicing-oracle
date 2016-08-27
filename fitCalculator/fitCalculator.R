@@ -6,7 +6,11 @@ stationID <-as.integer(args[1])
 from <- as.integer(args[1])
 to <- as.integer(args[1])
 
-mydb <- dbConnect(MySQL(), user='root', dbname='bicing_oracle_raw')
+user <- Sys.getenv("MYSQL_RAW_DATA_USER")
+dbname <- Sys.getenv("MYSQL_RAW_DATA_NAME")
+password <- Sys.getenv("MYSQL_RAW_DATA_PASSWORD")
+host <- Sys.getenv("MYSQL_RAW_DATA_HOST")
+mydb <- dbConnect(MySQL(), user=user, dbname=dbname, password=password, host=host)
 
 query <-  sprintf(
     "SELECT pbikes, weather_type, UNIX_TIMESTAMP(updatetime) as updatetime FROM fit_precalculation WHERE id=%d AND updatetime >= FROM_UNIXTIME(%d) AND FROM_UNIXTIME(%d) <= updatetime",

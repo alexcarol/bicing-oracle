@@ -39,6 +39,7 @@ func main() {
 	http.HandleFunc("/dumpdata", getDumpDataHandler(stationProvider))
 
 	http.HandleFunc("/prediction", getPredictionHandler(stationProvider))
+	http.HandleFunc("/prediction/single", getSingleStationPredictionHandler(stationProvider))
 
 	log.Fatal(http.ListenAndServe(":80", nil))
 }
@@ -179,6 +180,38 @@ func getPredictionHandler(stationProvider repository.StationProvider) http.Handl
 			"stations": predictions,
 		}
 		output, err := json.Marshal(predictionMap)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		fmt.Fprint(w, string(output))
+	}
+}
+
+func getSingleStationPredictionHandler(stationProvider repository.StationProvider) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var query = r.URL.Query()
+		timestamp, err := parseRequestInt(query, "time")
+		if err != nil {
+			output := "Error parsing time"
+			http.Error(w, output, 400)
+			return
+		}
+
+		stationID, err := parseRequestInt(query, "stationID")
+		if err != nil {
+			http.Error(w, "Error parsing stationID", 400)
+			return
+		}
+
+		singlePrediction, err := prediction.GetStationPrediction(timestamp, uint(stationID), stationProvider)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error getting prediction: %s", err.Error()), 500)
+			return
+		}
+
+		output, err := json.Marshal(singlePrediction)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return

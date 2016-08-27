@@ -9,9 +9,35 @@ import (
 type Prediction struct {
 	ID              uint    `json:"id"`
 	Address         string  `json:"address"`
-	BikeProbability float64 `json:"probability"`
+	BikeProbability float64 `json:"bike-probability"`
 	Lon             float64 `json:"lon"`
 	Lat             float64 `json:"lat"`
+}
+
+// GetStationPrediction returns the prediction for a station
+func GetStationPrediction(time int, stationID uint, stationProvider repository.StationProvider) (Prediction, error) {
+	station, err := stationProvider.GetStationByID(stationID)
+	if err != nil {
+		return Prediction{}, err
+	}
+
+	weather, err := datasource.GetForecast(time)
+	if err != nil {
+		return Prediction{}, err
+	}
+
+	probability, err := getBikeProbability(station.ID, time, weather)
+	if err != nil { // TODO consider ignoring failed cases but adding a metric
+		return Prediction{}, err
+	}
+
+	return Prediction{
+		station.ID,
+		station.Street + ", " + station.StreetNumber,
+		probability,
+		station.Lon,
+		station.Lat,
+	}, nil
 }
 
 // GetPredictions Returns an array of Prediction if everything goes alright
