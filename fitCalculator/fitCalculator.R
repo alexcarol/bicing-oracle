@@ -13,7 +13,7 @@ host <- Sys.getenv("MYSQL_RAW_DATA_HOST")
 mydb <- dbConnect(MySQL(), user=user, dbname=dbname, password=password, host=host)
 
 query <-  sprintf(
-    "SELECT pbikes, weather_type, UNIX_TIMESTAMP(updatetime) as updatetime FROM fit_precalculation WHERE id=%d AND updatetime >= FROM_UNIXTIME(%d) AND FROM_UNIXTIME(%d) <= updatetime",
+    "SELECT pbikes, weather_type, UNIX_TIMESTAMP(updatetime) as updatetime FROM fit_precalculation WHERE id=%d AND updatetime >= FROM_UNIXTIME(%d) AND updatetime <= FROM_UNIXTIME(%d) ",
     stationID,
     from,
     to
