@@ -32,7 +32,17 @@ func main() {
 
 	var stationProvider = repository.NewSQLStationProvider(db)
 
-	http.HandleFunc("/checkup", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/checkup", getHealthCheckHandler(db))
+
+	http.HandleFunc("/dumpdata", getDumpDataHandler(stationProvider))
+
+	http.HandleFunc("/prediction", getPredictionHandler(stationProvider))
+
+	log.Fatal(http.ListenAndServe(":80", nil))
+}
+
+func getHealthCheckHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		var output string
 		var problem = false
 
@@ -58,9 +68,11 @@ func main() {
 		} else {
 			fmt.Fprint(w, output)
 		}
-	})
+	}
+}
 
-	http.HandleFunc("/dumpdata", func(w http.ResponseWriter, r *http.Request) {
+func getDumpDataHandler(stationProvider repository.StationProvider) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		var query = r.URL.Query()
 
 		timestamp, err := parseRequestInt(query, "time")
@@ -105,9 +117,11 @@ func main() {
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 		}
-	})
+	}
+}
 
-	http.HandleFunc("/prediction", func(w http.ResponseWriter, r *http.Request) {
+func getPredictionHandler(stationProvider repository.StationProvider) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		var query = r.URL.Query()
 		timestamp, err := parseRequestInt(query, "time")
 		if err != nil {
@@ -144,9 +158,7 @@ func main() {
 		}
 
 		fmt.Fprint(w, string(output))
-	})
-
-	log.Fatal(http.ListenAndServe(":80", nil))
+	}
 }
 
 func getEnv(key string, defaultValue string) string {
