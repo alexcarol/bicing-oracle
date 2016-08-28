@@ -30,7 +30,7 @@ fit <- readRDS(objectID)
 
 data$prediction <- predict(fit, data)
 
-data$predictionOk <- data$pbikes == 1 && data$prediction > 0.5 || data$pbikes == 0 && data$prediction <= 0.5
+data$predictionOk <- data$pbikes == 1 & data$prediction > 0.5 | data$pbikes == 0 & data$prediction <= 0.
 
 table(data$predictionOk, data$pbikes)
 
