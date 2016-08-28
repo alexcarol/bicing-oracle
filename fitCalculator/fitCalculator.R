@@ -3,8 +3,8 @@ library(randomForest)
 
 args <- commandArgs(trailingOnly = TRUE)
 stationID <-as.integer(args[1])
-from <- as.integer(args[1])
-to <- as.integer(args[1])
+from <- as.integer(args[2])
+to <- as.integer(args[3])
 
 user <- Sys.getenv("MYSQL_RAW_DATA_USER")
 dbname <- Sys.getenv("MYSQL_RAW_DATA_NAME")
@@ -13,7 +13,7 @@ host <- Sys.getenv("MYSQL_RAW_DATA_HOST")
 mydb <- dbConnect(MySQL(), user=user, dbname=dbname, password=password, host=host)
 
 query <-  sprintf(
-    "SELECT pbikes, weather_type, UNIX_TIMESTAMP(updatetime) as updatetime FROM fit_precalculation WHERE id=%d AND updatetime >= FROM_UNIXTIME(%d) AND updatetime <= FROM_UNIXTIME(%d) ",
+    "SELECT pbikes, weather_type, UNIX_TIMESTAMP(updatetime) as updatetime FROM fit_precalculation WHERE id=%d AND updatetime >= FROM_UNIXTIME(%d) AND updatetime <= FROM_UNIXTIME(%d)",
     stationID,
     from,
     to
