@@ -1,11 +1,8 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
-
-	_ "github.com/alexcarol/bicing-oracle/Godeps/_workspace/src/github.com/go-sql-driver/mysql"
 
 	"os"
 
@@ -13,6 +10,7 @@ import (
 
 	"log"
 
+	"github.com/alexcarol/bicing-oracle/db"
 	"github.com/alexcarol/bicing-oracle/station-state/datasource"
 	"github.com/alexcarol/bicing-oracle/station-state/parser"
 	"github.com/alexcarol/bicing-oracle/station-state/repository"
@@ -21,14 +19,7 @@ import (
 )
 
 func main() {
-	dbName := getEnv("MYSQL_RAW_DATA_NAME", "bicing_raw")
-
-	username := getEnv("MYSQL_RAW_DATA_USER", "root")
-	password := getEnv("MYSQL_RAW_DATA_PASSWORD", "")
-
-	port := getEnv("MYSQL_RAW_DATA_ADDRESS", "localhost:3306")
-
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s", username, password, port, dbName))
+	db, err := db.GetRawDataDBFromEnv()
 	if err != nil {
 		panic(err)
 	}
