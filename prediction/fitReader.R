@@ -14,7 +14,13 @@ weather_type <- c(weather)
 weekday <- c(as.POSIXlt(as.POSIXct(updatetime, origin="1970-01-01"))$wday)
 dayMoment <- c(updatetime %% 86400)
 updatetime <- c(updatetime)
-object <- data.frame(updatetime, dayMoment, weekday, weather_type)
+data <- data.frame(updatetime, dayMoment, weekday, weather_type)
 
+data$weekdaySunday <- data$weekday == 0
+data$weekdayMonday <- data$weekday == 1
+data$weekdayTuesday <- data$weekday == 2
+data$weekdayWednesday <- data$weekday == 3
+data$weekdayThursday <- data$weekday == 4
+data$weekdayFriday <- data$weekday == 5
 
-predict(fit, object)
+predict(fit, data)
