@@ -23,12 +23,7 @@ data <- dbGetQuery(mydb, query)
 
 data$dayMoment <- data$updatetime %% 86400
 data$weekday <- as.POSIXlt(as.POSIXct(data$updatetime, origin="1970-01-01"))$wday
-data$weekdaySunday <- data$weekday == 0
-data$weekdayMonday <- data$weekday == 1
-data$weekdayTuesday <- data$weekday == 2
-data$weekdayWednesday <- data$weekday == 3
-data$weekdayThursday <- data$weekday == 4
-data$weekdayFriday <- data$weekday == 5
+
 
 objectID <- sprintf("/tmp/station/bike/%d.fit", stationID)
 fit <- readRDS(objectID)

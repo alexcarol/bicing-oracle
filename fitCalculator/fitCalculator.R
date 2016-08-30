@@ -22,14 +22,9 @@ data <- dbGetQuery(mydb, query)
 
 data$dayMoment <- data$updatetime %% 86400
 data$weekday <- as.POSIXlt(as.POSIXct(data$updatetime, origin="1970-01-01"))$wday
-data$weekdaySunday <- data$weekday == 0
-data$weekdayMonday <- data$weekday == 1
-data$weekdayTuesday <- data$weekday == 2
-data$weekdayWednesday <- data$weekday == 3
-data$weekdayThursday <- data$weekday == 4
-data$weekdayFriday <- data$weekday == 5
 
-bikeFit <- randomForest(pbikes ~ updatetime + dayMoment + weather_type + data$weekdaySunday + data$weekdayMonday + data$weekdayTuesday + data$weekdayWednesday + data$weekdayThursday + data$weekdayFriday, data=data, importance=TRUE, ntree=100)
+bikeFit <- randomForest(pbikes ~ updatetime + dayMoment + weekday + weather_type, data=data, importance=TRUE, ntree=100)
+
 
 dir.create("/tmp/station/bike", recursive=TRUE)
 
