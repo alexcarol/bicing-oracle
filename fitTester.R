@@ -21,6 +21,11 @@ query <-  sprintf(
 )
 data <- dbGetQuery(mydb, query)
 
+
+isCalm <- function(weather) {
+    return(weather >= 3 && weather <= 8)
+}
+data$weather <- isCalm(data$weather)
 data$dayMoment <- data$updatetime %% 86400
 data$weekday <- as.POSIXlt(as.POSIXct(data$updatetime, origin="1970-01-01"))$wday
 
