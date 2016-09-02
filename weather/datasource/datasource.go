@@ -22,17 +22,17 @@ const language = "ES"
 const barcelonaWeatherID = 3128760
 
 // GetForecast returns the weather forecast for a time
-func GetForecast(time int) (int, error) {
+func GetForecast(time int) (int, float64, error) {
 	// this uses only the daily prediction, better use 3-hour precision prediction
 	forecastPredictor, err := openweathermap.NewForecast(temperatureUnit, language)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
 	// TODO cache this to prevent too many api calls
 	err = forecastPredictor.DailyByID(barcelonaWeatherID, 5)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
 	var minI int
@@ -50,10 +50,11 @@ func GetForecast(time int) (int, error) {
 
 	forecast := forecastPredictor.List[minI]
 	if len(forecast.Weather) < 0 {
-		return 0, errors.New("Weather length should not be 0")
+		return 0, 0, errors.New("Weather length should not be 0")
 	}
+	temperature := forecast.Temp.Day
 
-	return convertWeatherID(forecast.Weather[0].ID), nil
+	return convertWeatherID(forecast.Weather[0].ID), temperature, nil
 }
 
 func abs(i int) int {

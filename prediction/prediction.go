@@ -21,7 +21,7 @@ func GetStationPrediction(time int, stationID uint, stationProvider repository.S
 		return Prediction{}, err
 	}
 
-	weather, err := datasource.GetForecast(time)
+	weather, temperature, err := datasource.GetForecast(time)
 	if err != nil {
 		return Prediction{}, err
 	}
