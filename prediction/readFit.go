@@ -19,7 +19,7 @@ func init() {
 	scriptPath = path.Join(path.Dir(filename), "fitReader.R")
 }
 
-func getBikeProbability(stationID uint, updatetime int, weather int, temperature float64) (float64, error) {
+func getBikes(stationID uint, updatetime int, weather int, temperature float64) (int, error) {
 	cmd := exec.Command(
 		"Rscript",
 		scriptPath,
@@ -41,8 +41,8 @@ func getBikeProbability(stationID uint, updatetime int, weather int, temperature
 	}
 
 	var a string
-	var bikeProbability float64
-	fmt.Fscan(&out, &a, &bikeProbability)
+	var bikes int
+	fmt.Fscan(&out, &a, &bikes)
 
-	return bikeProbability, nil
+	return bikes, nil
 }
