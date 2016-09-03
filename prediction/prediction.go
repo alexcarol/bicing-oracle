@@ -26,7 +26,7 @@ func GetStationPrediction(time int, stationID uint, stationProvider repository.S
 		return Prediction{}, err
 	}
 
-	probability, err := getBikeProbability(station.ID, time, weather)
+	probability, err := getBikeProbability(station.ID, time, weather, temperature)
 	if err != nil { // TODO consider ignoring failed cases but adding a metric
 		return Prediction{}, err
 	}
@@ -49,13 +49,13 @@ func GetPredictions(time int, lat float64, lon float64, stationProvider reposito
 
 	var predictions = make([]Prediction, len(stations))
 
-	weather, err := datasource.GetForecast(time)
+	weather, temperature, err := datasource.GetForecast(time)
 	if err != nil {
 		return nil, err
 	}
 
 	for i, station := range stations {
-		probability, err := getBikeProbability(station.ID, time, weather)
+		probability, err := getBikeProbability(station.ID, time, weather, temperature)
 		if err != nil { // TODO consider ignoring failed cases but adding a metric
 			return nil, err
 		}
