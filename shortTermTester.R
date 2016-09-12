@@ -32,8 +32,8 @@ objectID <- sprintf("/tmp/station/bike/%d.fit", stationID)
 fit <- readRDS(objectID)
 
 
-data$predictedAmount <- predict(fit, data, originalFieldName)
-closest_bikes <- function(df, row, diff) {
+data$predictedAmount <- predict(fit, data)
+closest_bikes <- function(df, row, diff, originalFieldName) {
     return(df[which.min(abs(df$updatetime-(df$updatetime[row]-diff))), originalFieldName])
 }
 
