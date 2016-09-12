@@ -7,11 +7,11 @@ import (
 
 // Prediction contains a prediction for a station at a certain time
 type Prediction struct {
-	ID      uint    `json:"id"`
-	Address string  `json:"address"`
-	Bikes   int     `json:"bikes"`
-	Lon     float64 `json:"lon"`
-	Lat     float64 `json:"lat"`
+	ID              uint    `json:"id"`
+	Address         string  `json:"address"`
+	BikeProbability float64 `json:"bike-probability"`
+	Lon             float64 `json:"lon"`
+	Lat             float64 `json:"lat"`
 }
 
 // GetStationPrediction returns the prediction for a station
@@ -26,7 +26,7 @@ func GetStationPrediction(time int, stationID uint, stationProvider repository.S
 		return Prediction{}, err
 	}
 
-	bikes, err := getBikes(station.ID, time, weather, temperature)
+	bikes, err := getProbability(station.ID, time, weather, temperature)
 	if err != nil { // TODO consider ignoring failed cases but adding a metric
 		return Prediction{}, err
 	}
@@ -55,7 +55,7 @@ func GetPredictions(time int, lat float64, lon float64, stationProvider reposito
 	}
 
 	for i, station := range stations {
-		probability, err := getBikes(station.ID, time, weather, temperature)
+		probability, err := getProbability(station.ID, time, weather, temperature)
 		if err != nil { // TODO consider ignoring failed cases but adding a metric
 			return nil, err
 		}

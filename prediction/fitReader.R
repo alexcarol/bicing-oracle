@@ -10,7 +10,7 @@ isCalm <- function(weather) {
     return(weather >= 3 && weather <= 8)
 }
 
-objectID <- sprintf("/tmp/station/bike/%d.fit", stationID)
+objectID <- sprintf("/tmp/station/pbike/%d.fit", stationID)
 fit <- readRDS(objectID)
 
 weather_type <- c(isCalm(weather))
