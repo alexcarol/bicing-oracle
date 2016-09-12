@@ -32,21 +32,30 @@ objectID <- sprintf("/tmp/station/bike/%d.fit", stationID)
 fit <- readRDS(objectID)
 
 
-data$predictedAmount <- predict(fit, data)
+data$predictedAmount <- predict(fit, data, originalFieldName)
 closest_bikes <- function(df, row, diff) {
-    return(df[which.min(abs(df$updatetime-(df$updatetime[row]-diff))), "bikes"])
+    return(df[which.min(abs(df$updatetime-(df$updatetime[row]-diff))), originalFieldName])
 }
 
-append_to_data <- function(df, diff, fieldName) {
+append_to_data <- function(df, diff, resultingFieldName, originalFieldName) {
     for (i in 1:nrow(df)) {
-        df[i, fieldName] <- closest_bikes(df, i, diff)
+        df[i, resultingFieldName] <- closest_bikes(df, i, diff)
     }
     return(df)
 }
-data <- append_to_data(data, 1800, "bikesAtMinus30")
-data <- append_to_data(data, 3600, "bikesAtMinus60")
-data <- append_to_data(data, 5400, "bikesAtMinus90")
-data <- append_to_data(data, 7200, "bikesAtMinus120")
+data <- append_to_data(data, 1800, "bikesAtMinus30", "bikes")
+data <- append_to_data(data, 1800, "predictedBikesAtMinus30", "predictedAmount")
+data <- append_to_data(data, 3600, "bikesAtMinus60", "bikes")
+data <- append_to_data(data, 3600, "predictedBikesAtMinus60", "predictedAmount")
+data <- append_to_data(data, 5400, "bikesAtMinus90", "bikes")
+data <- append_to_data(data, 5400, "predictedBikesAtMinus90", "predictedAmount")
+data <- append_to_data(data, 7200, "bikesAtMinus120", "bikes")
+data <- append_to_data(data, 7200, "predictedBikesAtMinus120", "predictedAmount")
+
+data$calculatedFromMinus30 <- data$bikesAtMinus30 + data$predictedAmount - data$predictedBikesAtMinus30
+data$calculatedFromMinus60 <- data$bikesAtMinus60 + data$predictedAmount - data$predictedBikesAtMinus60
+data$calculatedFromMinus90 <- data$bikesAtMinus90 + data$predictedAmount - data$predictedBikesAtMinus90
+data$calculatedFromMinus120 <- data$bikesAtMinus120 + data$predictedAmount - data$predictedBikesAtMinus120
 
 write.csv(data, sprintf("station%d.csv", stationID))
 
