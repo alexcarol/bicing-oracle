@@ -39,7 +39,7 @@ closest_bikes <- function(df, row, diff) {
 
 append_to_data <- function(df, diff, resultingFieldName, originalFieldName) {
     for (i in 1:nrow(df)) {
-        df[i, resultingFieldName] <- closest_bikes(df, i, diff)
+        df[i, resultingFieldName] <- closest_bikes(df, i, diff, originalFieldName)
     }
     return(df)
 }
