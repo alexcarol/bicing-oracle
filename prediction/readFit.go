@@ -28,7 +28,7 @@ const shortTermThreshold = 1800 // 30 minutes
 func getProbability(stationID uint, updatetime int, weather int, temperature float64) (float64, error) {
 	currentTime := time.Now().Unix()
 
-	if currentTime+shortTermThreshold >= int64(updatetime) {
+	if currentTime+shortTermThreshold <= int64(updatetime) {
 		log.Println("Long term", currentTime, shortTermThreshold, updatetime)
 		return getLongTerm(stationID, updatetime, weather)
 	}
