@@ -36,8 +36,17 @@ func init() {
 	scriptPath := path.Join(path.Dir(filename), "fitCalculator.R")
 
 	go func(scriptPath string) {
+		var recent = make([]uint, 0)
+
 		for {
 			data := <-calculate
+
+			for _, stationID := range recent {
+				if stationID == data.stationID {
+					data.responseChannel <- nil
+					return
+				}
+			}
 
 			err := doCalculateFit(data.stationID, data.from, data.to, scriptPath)
 			if err != nil {
@@ -52,6 +61,12 @@ func init() {
 			} else {
 				data.responseChannel <- nil
 			}
+
+			if len(recent) == 10 {
+				recent = recent[1:]
+			}
+
+			recent = append(recent, data.stationID)
 		}
 
 	}(scriptPath)
