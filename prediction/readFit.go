@@ -25,7 +25,7 @@ func init() {
 
 const shortTermThreshold = 1800 // 30 minutes
 
-func getProbability(stationID uint, updatetime int, weather int, temperature float64) (float64, error) {
+func getProbability(stationID uint, updatetime int, weather int, temperature float64, currentBikes int) (float64, error) {
 	currentTime := time.Now().Unix()
 
 	if currentTime+shortTermThreshold <= int64(updatetime) {
@@ -35,10 +35,10 @@ func getProbability(stationID uint, updatetime int, weather int, temperature flo
 
 	log.Println("Short term", currentTime, shortTermThreshold, updatetime)
 
-	return getShortTerm(stationID, updatetime, weather, int(currentTime))
+	return getShortTerm(stationID, updatetime, weather, int(currentTime), currentBikes)
 }
 
-func getShortTerm(stationID uint, updatetime, weather, currentTime int) (float64, error) {
+func getShortTerm(stationID uint, updatetime, weather, currentTime int, currentBikes int) (float64, error) {
 	cmd := exec.Command(
 		"Rscript",
 		shortTermScriptPath,
@@ -60,11 +60,16 @@ func getShortTerm(stationID uint, updatetime, weather, currentTime int) (float64
 		return 0, fmt.Errorf("%v: %s, %s", err, errOut.String(), out.String())
 	}
 
-	var a string
-	var probability float64
-	fmt.Fscan(&out, &a, &probability)
+	var a int
+	var futurePrediction float64
+	var currentPrediction float64
+	fmt.Fscan(&out, &a, &a, &futurePrediction, &currentPrediction)
 
-	return probability, nil
+	if float64(currentBikes)+futurePrediction-currentPrediction > 0 {
+		return 1, nil
+	}
+
+	return 0, nil
 }
 
 func getLongTerm(stationID uint, updatetime int, weather int) (float64, error) {

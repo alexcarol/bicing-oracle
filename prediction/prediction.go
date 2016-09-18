@@ -30,12 +30,17 @@ func GetStationPrediction(time int, stationID uint, stationProvider repository.S
 		return Prediction{}, err
 	}
 
-	bikes, err := getProbability(station.ID, time, weather, temperature)
+	currentBikes, err := getCurrentBikes(station.ID, stationProvider)
+	if err != nil {
+		return Prediction{}, err
+	}
+
+	probability, err := getProbability(station.ID, time, weather, temperature, currentBikes)
 
 	return Prediction{
 		station.ID,
 		station.Street + ", " + station.StreetNumber,
-		bikes,
+		probability,
 		station.Lon,
 		station.Lat,
 		err != nil,
@@ -57,7 +62,13 @@ func GetPredictions(time int, lat float64, lon float64, stationProvider reposito
 	}
 
 	for i, station := range stations {
-		probability, err := getProbability(station.ID, time, weather, temperature)
+		currentBikes, err := getCurrentBikes(station.ID, stationProvider)
+		if err != nil {
+			log.Printf("Error obtaining bikes for station %d\n", station.ID)
+			continue
+		}
+
+		probability, err := getProbability(station.ID, time, weather, temperature, currentBikes)
 		if err != nil { // TODO consider adding a metric
 			fitCalculator.ScheduleCalculate(station.ID)
 			log.Println("Error getting probability for station", station.ID, err.Error())
@@ -74,4 +85,10 @@ func GetPredictions(time int, lat float64, lon float64, stationProvider reposito
 	}
 
 	return predictions, nil
+}
+
+func getCurrentBikes(stationID uint, stationProvider repository.StationProvider) (int, error) {
+	stationState, err := stationProvider.GetCurrentStationStateStationByID(stationID)
+
+	return stationState.Bikes, err
 }

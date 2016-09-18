@@ -67,6 +67,7 @@ type StationProvider interface {
 	GetStationByID(id uint) (Station, error)
 	GetNearbyStations(lat, lon float64, minStations int) ([]Station, error)
 	GetStationStateByInterval(stationID int, start time.Time, duration time.Duration) ([]StationState, error)
+	GetCurrentStationStateStationByID(stationID uint) (StationState, error)
 }
 
 // Station contains info about a station
@@ -90,6 +91,28 @@ type StationState struct {
 // NewSQLStationProvider returns a StationStateProvider that uses mysql to retrieve the information
 func NewSQLStationProvider(db *sql.DB) StationProvider {
 	return sqlStorage{db}
+}
+
+func (storage sqlStorage) GetCurrentStationStateStationByID(stationID uint) (StationState, error) {
+	var stationState StationState
+	rows, err := storage.database.Query(
+		"SELECT id, bikes, slots, UNIX_TIMESTAMP(updatetime) FROM station_state state, station s WHERE s.id=? AND s.last_updatetime = state.updatetime ",
+		stationID,
+	)
+
+	if err != nil {
+		return stationState, err
+	}
+
+	defer rows.Close()
+
+	if !rows.Next() {
+		return stationState, fmt.Errorf("No rows left, err=%v", rows.Err())
+	}
+
+	err = rows.Scan(&stationState.ID, &stationState.Bikes, &stationState.Slots, &stationState.Time)
+
+	return stationState, err
 }
 
 func (storage sqlStorage) GetStationByID(id uint) (Station, error) {
