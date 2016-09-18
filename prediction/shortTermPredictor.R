@@ -15,12 +15,12 @@ isCalm <- function(weather) {
 objectID <- sprintf("/tmp/station/bike/%d.fit", stationID)
 fit <- readRDS(objectID)
 
-weatherIsCalm <- isCalm(weather)
-posixWeekday <- as.POSIXlt(as.POSIXct(updatetime, origin="1970-01-01"))$wday
+currentWeekday <- as.POSIXlt(as.POSIXct(currentTime, origin="1970-01-01"))$wday
+predictionWeekday <- as.POSIXlt(as.POSIXct(predictionTime, origin="1970-01-01"))$wday
 
-weather_type <- c(weatherIsCalm, weatherIsCalm)
-weekday <- c(posixWeekday, posixWeekday)
-dayMoment <- c(updatetime %% 86400, currentTime %% 86400)
+weather_type <- c(isCalm(predictedWeather), isCalm(currentWeather))
+weekday <- c(predictionWeekday, currentWeekday)
+dayMoment <- c(predictionTime %% 86400, currentTime %% 86400)
 updatetime <- c(predictionTime, currentTime)
 object <- data.frame(updatetime, dayMoment, weekday, weather_type)
 
