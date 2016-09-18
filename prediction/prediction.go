@@ -1,6 +1,8 @@
 package prediction
 
 import (
+	"log"
+
 	"github.com/alexcarol/bicing-oracle/fitCalculator"
 	"github.com/alexcarol/bicing-oracle/station-state/repository"
 	"github.com/alexcarol/bicing-oracle/weather/datasource"
@@ -37,7 +39,7 @@ func GetStationPrediction(time int, stationID uint, stationProvider repository.S
 		station.Lon,
 		station.Lat,
 		err != nil,
-	}, nil
+	}, err
 }
 
 // GetPredictions Returns an array of Prediction if everything goes alright
@@ -58,6 +60,7 @@ func GetPredictions(time int, lat float64, lon float64, stationProvider reposito
 		probability, err := getProbability(station.ID, time, weather, temperature)
 		if err != nil { // TODO consider adding a metric
 			fitCalculator.ScheduleCalculate(station.ID)
+			log.Println("Error getting probability for station", station.ID, err.Error())
 		}
 
 		predictions[i] = Prediction{

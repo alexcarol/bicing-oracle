@@ -53,7 +53,7 @@ func getShortTerm(stationID uint, updatetime, weather, currentTime int) (float64
 	err := cmd.Run()
 
 	if err != nil {
-		return 0, fmt.Errorf("%v: %s", err, errOut.String())
+		return 0, fmt.Errorf("%v: %s, %s", err, errOut.String(), out.String())
 	}
 
 	var a string
@@ -80,7 +80,7 @@ func getLongTerm(stationID uint, updatetime int, weather int) (float64, error) {
 	err := cmd.Run()
 
 	if err != nil {
-		return 0, fmt.Errorf("%v: %s", err, errOut.String())
+		return 0, fmt.Errorf("%v: Error: %s, Regular output: %s", err, errOut.String(), out.String())
 	}
 
 	var a string
