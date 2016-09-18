@@ -3,6 +3,7 @@ package prediction
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"os/exec"
 	"path"
 	"runtime"
@@ -28,8 +29,11 @@ func getProbability(stationID uint, updatetime int, weather int, temperature flo
 	currentTime := time.Now().Unix()
 
 	if currentTime+shortTermThreshold >= int64(updatetime) {
+		log.Println("Long term", currentTime, shortTermThreshold, updatetime)
 		return getLongTerm(stationID, updatetime, weather)
 	}
+
+	log.Println("Short term", currentTime, shortTermThreshold, updatetime)
 
 	return getShortTerm(stationID, updatetime, weather, int(currentTime))
 }
