@@ -37,6 +37,7 @@ func main() {
 
 	log.Fatal(http.ListenAndServe(":80", nil))
 }
+
 func getCalculateFitHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var query = r.URL.Query()
@@ -56,7 +57,8 @@ func getCalculateFitHandler() http.HandlerFunc {
 			http.Error(w, err.Error(), 400)
 			return
 		}
-		err = fitCalculator.CalculateFit(uint(stationID), int64(from), int64(to))
+
+		fitCalculator.CalculateFit(uint(stationID), int64(from), int64(to))
 		if err != nil {
 			http.Error(w, err.Error(), 400)
 		}

@@ -9,18 +9,77 @@ import (
 	"strconv"
 )
 
-var scriptPath string
+type fitRequest struct {
+	stationID       uint
+	from, to        int64
+	responseChannel chan<- error
+}
+
+var calculate = make(chan fitRequest)
+
+var defaultErrorChannel = make(chan error)
 
 func init() {
+	go func() {
+		for {
+			err := <-defaultErrorChannel
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}()
+
 	_, filename, _, ok := runtime.Caller(1)
 	if !ok {
 		panic(fmt.Errorf("Error obtaining the filename"))
 	}
-	scriptPath = path.Join(path.Dir(filename), "fitCalculator.R")
+	scriptPath := path.Join(path.Dir(filename), "fitCalculator.R")
+
+	go func(scriptPath string) {
+		for {
+			data := <-calculate
+
+			err := doCalculateFit(data.stationID, data.from, data.to, scriptPath)
+			if err != nil {
+				data.responseChannel <- fmt.Errorf(
+					"Error calculating fit for %d, %d, %d in script %s : %v\n",
+					data.stationID,
+					data.from,
+					data.to,
+					scriptPath,
+					err,
+				)
+			} else {
+				data.responseChannel <- nil
+			}
+		}
+
+	}(scriptPath)
 }
 
-// CalculateFit calculates the fit for a station using
+const (
+	// TODO maybe these constants should be used only internally
+	DefaultFrom = 1465653992 // TODO fix
+	DefaultTo   = 9999999999 // TODO fix
+)
+
+// ScheduleCalculate schedules a fit calculation for the chosen station
+func ScheduleCalculate(stationID uint) {
+	go func() {
+		calculate <- fitRequest{stationID, DefaultFrom, DefaultTo, defaultErrorChannel}
+	}()
+}
+
+// CalculateFit calculates the fit for a station
 func CalculateFit(stationID uint, from, to int64) error {
+	var responseChannel = make(chan error)
+
+	calculate <- fitRequest{stationID, from, to, responseChannel}
+
+	return <-responseChannel
+}
+
+func doCalculateFit(stationID uint, from, to int64, scriptPath string) error {
 	cmd := exec.Command(
 		"Rscript",
 		scriptPath,

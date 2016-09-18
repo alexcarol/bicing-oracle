@@ -1,6 +1,7 @@
 package prediction
 
 import (
+	"github.com/alexcarol/bicing-oracle/fitCalculator"
 	"github.com/alexcarol/bicing-oracle/station-state/repository"
 	"github.com/alexcarol/bicing-oracle/weather/datasource"
 )
@@ -12,6 +13,7 @@ type Prediction struct {
 	BikeProbability float64 `json:"bike-probability"`
 	Lon             float64 `json:"lon"`
 	Lat             float64 `json:"lat"`
+	Failure         bool    `json:"failure"`
 }
 
 // GetStationPrediction returns the prediction for a station
@@ -27,9 +29,6 @@ func GetStationPrediction(time int, stationID uint, stationProvider repository.S
 	}
 
 	bikes, err := getProbability(station.ID, time, weather, temperature)
-	if err != nil { // TODO consider ignoring failed cases but adding a metric
-		return Prediction{}, err
-	}
 
 	return Prediction{
 		station.ID,
@@ -37,6 +36,7 @@ func GetStationPrediction(time int, stationID uint, stationProvider repository.S
 		bikes,
 		station.Lon,
 		station.Lat,
+		err != nil,
 	}, nil
 }
 
@@ -56,8 +56,8 @@ func GetPredictions(time int, lat float64, lon float64, stationProvider reposito
 
 	for i, station := range stations {
 		probability, err := getProbability(station.ID, time, weather, temperature)
-		if err != nil { // TODO consider ignoring failed cases but adding a metric
-			return nil, err
+		if err != nil { // TODO consider adding a metric
+			fitCalculator.ScheduleCalculate(station.ID)
 		}
 
 		predictions[i] = Prediction{
@@ -66,6 +66,7 @@ func GetPredictions(time int, lat float64, lon float64, stationProvider reposito
 			probability,
 			station.Lon,
 			station.Lat,
+			err != nil,
 		}
 	}
 
