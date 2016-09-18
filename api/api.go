@@ -34,8 +34,74 @@ func main() {
 
 	http.HandleFunc("/prediction", getPredictionHandler(stationProvider))
 	http.HandleFunc("/prediction/single", getSingleStationPredictionHandler(stationProvider))
+	http.HandleFunc("/prediction/test", getAllPredictionsHandler(stationProvider))
 
 	log.Fatal(http.ListenAndServe(":80", nil))
+}
+
+func getAllPredictionsHandler(stationProvider repository.StationProvider) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		stations, err := stationProvider.GetAllStations()
+		if err != nil {
+			output := "Error getting all stations " + err.Error()
+			http.Error(w, output, 400)
+			return
+		}
+
+		type predictionTest struct {
+			StationID  int
+			ShortTime  int64
+			ShortTerm  float64
+			ShortError string
+			LongTime   int64
+			LongTerm   float64
+			LongError  string
+		}
+		var predictionList = make([]predictionTest, len(stations))
+
+		errorAmount := 0
+		for i, station := range stations {
+			currentTimestamp := time.Now().Unix()
+			shortTimestamp := currentTimestamp + 300
+			longTimestamp := currentTimestamp + 3600
+
+			shortPrediction, shortErr := prediction.GetStationPrediction(int(shortTimestamp), uint(station.ID), stationProvider)
+			if shortErr != nil {
+				errorAmount++
+			}
+			longPrediction, longErr := prediction.GetStationPrediction(int(longTimestamp), uint(station.ID), stationProvider)
+			if longErr != nil {
+				errorAmount++
+			}
+
+			shortErrText := ""
+			if shortErr != nil {
+				shortErrText = shortErr.Error()
+			}
+
+			longErrText := ""
+			if longErr != nil {
+				longErrText = longErr.Error()
+			}
+
+			predictionList[i] = predictionTest{
+				StationID:  int(station.ID),
+				ShortTime:  shortTimestamp,
+				ShortTerm:  shortPrediction.BikeProbability,
+				ShortError: shortErrText,
+				LongTime:   longTimestamp,
+				LongTerm:   longPrediction.BikeProbability,
+				LongError:  longErrText,
+			}
+		}
+
+		err = json.NewEncoder(w).Encode(predictionList)
+
+		if errorAmount > 0 || err != nil {
+			http.Error(w, err.Error(), 500)
+		}
+	}
 }
 
 func getCalculateFitHandler() http.HandlerFunc {
