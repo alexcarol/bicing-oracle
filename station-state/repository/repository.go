@@ -96,7 +96,8 @@ func NewSQLStationProvider(db *sql.DB) StationProvider {
 func (storage sqlStorage) GetCurrentStationStateStationByID(stationID uint) (StationState, error) {
 	var stationState StationState
 	rows, err := storage.database.Query(
-		"SELECT state.id, state.bikes, state.slots, UNIX_TIMESTAMP(state.updatetime) FROM station_state state, station s WHERE s.id=? AND s.last_updatetime = state.updatetime ",
+		"SELECT state.id, state.bikes, state.slots, UNIX_TIMESTAMP(state.updatetime) FROM station_state state, station s WHERE s.id=? AND state.id=? AND s.last_updatetime = state.updatetime ",
+		stationID,
 		stationID,
 	)
 
