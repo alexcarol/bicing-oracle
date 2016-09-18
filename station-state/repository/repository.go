@@ -64,6 +64,7 @@ func (storage sqlStorage) PersistCollection(collection collection.StationStateCo
 
 // StationProvider gives you a list of the nearby stations
 type StationProvider interface {
+	GetAllStations() ([]Station, error)
 	GetStationByID(id uint) (Station, error)
 	GetNearbyStations(lat, lon float64, minStations int) ([]Station, error)
 	GetStationStateByInterval(stationID int, start time.Time, duration time.Duration) ([]StationState, error)
@@ -114,6 +115,33 @@ func (storage sqlStorage) GetCurrentStationStateStationByID(stationID uint) (Sta
 	err = rows.Scan(&stationState.ID, &stationState.Bikes, &stationState.Slots, &stationState.Time)
 
 	return stationState, err
+}
+
+func (storage sqlStorage) GetAllStations() ([]Station, error) {
+	rows, err := storage.database.Query("SELECT id, latitude, longitude, street, street_number, height FROM station")
+	if err != nil {
+		return nil, err
+	}
+
+	var stationList = make([]Station, 0, 500) // TODO check if this can be adjusted
+
+	defer rows.Close()
+	rows.Columns()
+
+	for rows.Next() {
+		var currentStation Station
+
+		err = rows.Scan(&currentStation.ID, &currentStation.Lat, &currentStation.Lon, &currentStation.Street, &currentStation.StreetNumber, &currentStation.Height)
+		if err != nil {
+			return nil, err
+		}
+
+		stationList = append(stationList, currentStation)
+	}
+
+	err = rows.Err()
+
+	return stationList, err
 }
 
 func (storage sqlStorage) GetStationByID(id uint) (Station, error) {

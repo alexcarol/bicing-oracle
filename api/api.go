@@ -217,6 +217,17 @@ func getSingleStationPredictionHandler(stationProvider repository.StationProvide
 	}
 }
 
+func scheduleAllFits(stationProvider repository.StationProvider) {
+	stations, err := stationProvider.GetAllStations()
+	if err != nil {
+		panic(err)
+	}
+
+	for _, station := range stations {
+		fitCalculator.ScheduleCalculate(station.ID)
+	}
+}
+
 func parseRequestInt(query url.Values, name string) (int, error) {
 	result, err := strconv.Atoi(query.Get(name))
 	if err != nil {
