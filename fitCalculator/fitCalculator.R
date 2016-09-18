@@ -13,10 +13,9 @@ host <- Sys.getenv("MYSQL_RAW_DATA_HOST")
 mydb <- dbConnect(MySQL(), user=user, dbname=dbname, password=password, host=host)
 
 query <-  sprintf(
-    "SELECT bikes, weather_type, UNIX_TIMESTAMP(updatetime) as updatetime FROM fit_precalculation_2 WHERE id=%d AND updatetime >= FROM_UNIXTIME(%d) AND updatetime <= FROM_UNIXTIME(%d)",
+    "SELECT bikes, weather_type, UNIX_TIMESTAMP(updatetime) as updatetime FROM fit_precalculation_2 WHERE id=%d AND updatetime >= FROM_UNIXTIME(%d)",
     stationID,
-    from,
-    to
+    from
 )
 data <- dbGetQuery(mydb, query)
 
@@ -31,7 +30,7 @@ data$dayMoment <- data$updatetime %% 86400
 data$weekday <- as.POSIXlt(as.POSIXct(data$updatetime, origin="1970-01-01"))$wday
 
 bikeFit <- randomForest(bikes ~ updatetime + dayMoment + weekday + weather_type, data=data, importance=TRUE, ntree=100)
-pbikeFit <- randomForest(pbikes ~ updatetime + dayMoment + weekday + weather_type, data=data, importance=TRUE, ntree=100)
+pBikeFit <- randomForest(pbikes ~ updatetime + dayMoment + weekday + weather_type, data=data, importance=TRUE, ntree=100)
 
 
 dir.create("/tmp/station/bike", recursive=TRUE)
