@@ -64,7 +64,7 @@ func GetPredictions(time int, lat float64, lon float64, stationProvider reposito
 	for i, station := range stations {
 		currentBikes, err := getCurrentBikes(station.ID, stationProvider)
 		if err != nil {
-			log.Printf("Error obtaining bikes for station %d\n", station.ID)
+			log.Printf("Error obtaining bikes for station %d: %s\n", station.ID, err.Error())
 			continue
 		}
 
