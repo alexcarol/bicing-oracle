@@ -27,6 +27,8 @@ func main() {
 
 	var stationProvider = repository.NewSQLStationProvider(db)
 
+	scheduleAllFits(stationProvider)
+
 	http.HandleFunc("/admin/calculateFit", getCalculateFitHandler())
 	http.HandleFunc("/checkup", getHealthCheckHandler(db))
 
